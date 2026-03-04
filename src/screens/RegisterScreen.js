@@ -34,7 +34,8 @@ export default function RegisterScreen() {
     mobile: "",
     dob: "",
     address: "",
-    govId: "",
+    govIdType: "",
+    govIdNumber: "",
     password: "",
     confirmPassword: "",
   });
@@ -64,9 +65,13 @@ export default function RegisterScreen() {
       case "address":
         if (!value) error = "Address is required";
         break;
-      case "govId":
-        if (!value) error = "Government ID is required";
-        break;
+      case "govIdType":
+  if (!value) error = "Please select Government ID type";
+  break;
+
+case "govIdNumber":
+  if (!value) error = "Government ID number is required";
+  break;
       case "password":
         if (!value) error = "Password is required";
         else if (value.length < 6)
@@ -97,7 +102,7 @@ export default function RegisterScreen() {
     }
 
     try {
-      await registerUser({ email: form.email, password: form.password });
+      await registerUser({ email: form.email, password: form.password, govIdType: form.govIdType,govIdNumber: form.govIdNumber });
       alert("Registration Successful!");
       navigate("/login");
     } catch (err) {
@@ -164,14 +169,40 @@ export default function RegisterScreen() {
         onBlur={validateField}
         error={errors.address}
       />
-      <FormInput
-        label="Government ID"
-        name="govId"
-        value={form.govId}
-        onChange={handleChange}
-        onBlur={validateField}
-        error={errors.govId}
-      />
+      {/* Government ID Type Dropdown */}
+<div style={{ marginBottom: 10, width: "100%" }}>
+  <select
+    value={form.govIdType}
+    onChange={(e) => handleChange("govIdType", e.target.value)}
+    onBlur={() => validateField("govIdType", form.govIdType)}
+    style={{
+      width: "100%",
+      padding: 8,
+      borderRadius: 8,
+      border: errors.govIdType ? "1px solid red" : "1px solid #ccc",
+      boxSizing: "border-box",
+    }}
+  >
+    <option value="">Select Government ID Type</option>
+    <option value="aadhaar">Aadhaar</option>
+    <option value="pan">PAN Card</option>
+    <option value="voter">Voter ID</option>
+    <option value="others">Others</option>
+  </select>
+  {errors.govIdType && (
+    <p style={{ color: "red", fontSize: 12 }}>{errors.govIdType}</p>
+  )}
+</div>
+
+{/* Government ID Number Input */}
+<FormInput
+  label="Enter ID Number"
+  name="govIdNumber"
+  value={form.govIdNumber}
+  onChange={handleChange}
+  onBlur={validateField}
+  error={errors.govIdNumber}
+/>
       <FormInput
         label="Password"
         name="password"
