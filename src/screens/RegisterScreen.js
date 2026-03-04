@@ -3,7 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { registerUser } from "../services/authService";
 
 // Modular input component
-function FormInput({ label, name, type = "text", value, onChange, onBlur, error }) {
+function FormInput({
+  label,
+  name,
+  type = "text",
+  value,
+  onChange,
+  error,
+}) {
   return (
     <div style={{ marginBottom: 10, width: "100%" }}>
       <input
@@ -11,7 +18,6 @@ function FormInput({ label, name, type = "text", value, onChange, onBlur, error 
         placeholder={label}
         value={value}
         onChange={(e) => onChange(name, e.target.value)}
-        onBlur={() => onBlur(name, value)}
         style={{
           width: "100%",
           padding: 8,
@@ -41,46 +47,71 @@ export default function RegisterScreen() {
   });
 
   const [errors, setErrors] = useState({});
+  const [successMessage, setSuccessMessage] = useState("");
 
-  const validateField = (name, value) => {
+  // ✅ Real-time validation while typing
+  const handleChange = (name, value) => {
+    setForm((prev) => ({ ...prev, [name]: value }));
+
     let error = "";
 
     switch (name) {
       case "fullName":
         if (!value) error = "Full Name is required";
         break;
+
       case "email":
         if (!value) error = "Email is required";
         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
           error = "Enter valid email address";
         break;
+
       case "mobile":
         if (!value) error = "Mobile number is required";
         else if (!/^\d{10}$/.test(value))
           error = "Mobile number must be 10 digits";
         break;
+
       case "dob":
         if (!value) error = "Date of Birth is required";
         break;
+
       case "address":
         if (!value) error = "Address is required";
         break;
-      case "govIdType":
-  if (!value) error = "Please select Government ID type";
-  break;
 
-case "govIdNumber":
-  if (!value) error = "Government ID number is required";
-  break;
+      case "govIdType":
+        if (!value) error = "Please select Government ID type";
+        break;
+
+      case "govIdNumber":
+        if (!value) error = "Government ID number is required";
+        break;
+
       case "password":
         if (!value) error = "Password is required";
         else if (value.length < 6)
           error = "Password must be at least 6 characters";
+
+        if (form.confirmPassword && value !== form.confirmPassword) {
+          setErrors((prev) => ({
+            ...prev,
+            confirmPassword: "Passwords do not match",
+          }));
+        } else {
+          setErrors((prev) => ({
+            ...prev,
+            confirmPassword: "",
+          }));
+        }
         break;
+
       case "confirmPassword":
         if (!value) error = "Confirm your password";
-        else if (value !== form.password) error = "Passwords do not match";
+        else if (value !== form.password)
+          error = "Passwords do not match";
         break;
+
       default:
         break;
     }
@@ -88,23 +119,65 @@ case "govIdNumber":
     setErrors((prev) => ({ ...prev, [name]: error }));
   };
 
-  const handleChange = (name, value) => {
-    setForm({ ...form, [name]: value });
+  // ✅ Full validation on submit
+  const validateForm = () => {
+    let newErrors = {};
+
+    if (!form.fullName) newErrors.fullName = "Full Name is required";
+
+    if (!form.email) newErrors.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
+      newErrors.email = "Enter valid email address";
+
+    if (!form.mobile) newErrors.mobile = "Mobile number is required";
+    else if (!/^\d{10}$/.test(form.mobile))
+      newErrors.mobile = "Mobile number must be 10 digits";
+
+    if (!form.dob) newErrors.dob = "Date of Birth is required";
+
+    if (!form.address) newErrors.address = "Address is required";
+
+    if (!form.govIdType)
+      newErrors.govIdType = "Please select Government ID type";
+
+    if (!form.govIdNumber)
+      newErrors.govIdNumber = "Government ID number is required";
+
+    if (!form.password) newErrors.password = "Password is required";
+    else if (form.password.length < 6)
+      newErrors.password = "Password must be at least 6 characters";
+
+    if (!form.confirmPassword)
+      newErrors.confirmPassword = "Confirm your password";
+    else if (form.confirmPassword !== form.password)
+      newErrors.confirmPassword = "Passwords do not match";
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleRegister = async () => {
-    // Validate all fields
-    Object.keys(form).forEach((key) => validateField(key, form[key]));
-    const hasErrors = Object.values(errors).some((e) => e !== "");
-    if (hasErrors) {
-      alert("Please fix validation errors");
-      return;
-    }
+    const isValid = validateForm();
+
+    if (!isValid) return;
 
     try {
-      await registerUser({ email: form.email, password: form.password, govIdType: form.govIdType,govIdNumber: form.govIdNumber });
-      alert("Registration Successful!");
-      navigate("/login");
+      await registerUser({
+        email: form.email,
+        password: form.password,
+        govIdType: form.govIdType,
+        govIdNumber: form.govIdNumber,
+      });
+
+      // ✅ Show success message
+      setSuccessMessage("Registration Successful! Redirecting to login...");
+
+      // ✅ Redirect after 3 seconds
+      setTimeout(() => {
+        navigate("/login");
+      }, 3000);
+
     } catch (err) {
       alert("Registration Failed: " + err.message);
     }
@@ -126,101 +199,49 @@ case "govIdNumber":
     >
       <h2 style={{ textAlign: "center", marginBottom: 20 }}>Register</h2>
 
-      <FormInput
-        label="Full Name"
-        name="fullName"
-        value={form.fullName}
-        onChange={handleChange}
-        onBlur={validateField}
-        error={errors.fullName}
-      />
-      <FormInput
-        label="Email ID"
-        name="email"
-        type="email"
-        value={form.email}
-        onChange={handleChange}
-        onBlur={validateField}
-        error={errors.email}
-      />
-      <FormInput
-        label="Mobile Number"
-        name="mobile"
-        type="tel"
-        value={form.mobile}
-        onChange={handleChange}
-        onBlur={validateField}
-        error={errors.mobile}
-      />
-      <FormInput
-        label="Date of Birth"
-        name="dob"
-        type="date"
-        value={form.dob}
-        onChange={handleChange}
-        onBlur={validateField}
-        error={errors.dob}
-      />
-      <FormInput
-        label="Address"
-        name="address"
-        value={form.address}
-        onChange={handleChange}
-        onBlur={validateField}
-        error={errors.address}
-      />
-      {/* Government ID Type Dropdown */}
-<div style={{ marginBottom: 10, width: "100%" }}>
-  <select
-    value={form.govIdType}
-    onChange={(e) => handleChange("govIdType", e.target.value)}
-    onBlur={() => validateField("govIdType", form.govIdType)}
-    style={{
-      width: "100%",
-      padding: 8,
-      borderRadius: 8,
-      border: errors.govIdType ? "1px solid red" : "1px solid #ccc",
-      boxSizing: "border-box",
-    }}
-  >
-    <option value="">Select Government ID Type</option>
-    <option value="aadhaar">Aadhaar</option>
-    <option value="pan">PAN Card</option>
-    <option value="voter">Voter ID</option>
-    <option value="others">Others</option>
-  </select>
-  {errors.govIdType && (
-    <p style={{ color: "red", fontSize: 12 }}>{errors.govIdType}</p>
-  )}
-</div>
+      <FormInput label="Full Name" name="fullName" value={form.fullName} onChange={handleChange} error={errors.fullName} />
+      <FormInput label="Email ID" name="email" type="email" value={form.email} onChange={handleChange} error={errors.email} />
+      <FormInput label="Mobile Number" name="mobile" type="tel" value={form.mobile} onChange={handleChange} error={errors.mobile} />
+      <FormInput label="Date of Birth" name="dob" type="date" value={form.dob} onChange={handleChange} error={errors.dob} />
+      <FormInput label="Address" name="address" value={form.address} onChange={handleChange} error={errors.address} />
 
-{/* Government ID Number Input */}
-<FormInput
-  label="Enter ID Number"
-  name="govIdNumber"
-  value={form.govIdNumber}
-  onChange={handleChange}
-  onBlur={validateField}
-  error={errors.govIdNumber}
-/>
-      <FormInput
-        label="Password"
-        name="password"
-        type="password"
-        value={form.password}
-        onChange={handleChange}
-        onBlur={validateField}
-        error={errors.password}
-      />
-      <FormInput
-        label="Confirm Password"
-        name="confirmPassword"
-        type="password"
-        value={form.confirmPassword}
-        onChange={handleChange}
-        onBlur={validateField}
-        error={errors.confirmPassword}
-      />
+      <div style={{ marginBottom: 10, width: "100%" }}>
+        <select
+          value={form.govIdType}
+          onChange={(e) => handleChange("govIdType", e.target.value)}
+          style={{
+            width: "100%",
+            padding: 8,
+            borderRadius: 8,
+            border: errors.govIdType ? "1px solid red" : "1px solid #ccc",
+          }}
+        >
+          <option value="">Select Government ID Type</option>
+          <option value="aadhaar">Aadhaar</option>
+          <option value="pan">PAN Card</option>
+          <option value="voter">Voter ID</option>
+          <option value="others">Others</option>
+        </select>
+        {errors.govIdType && (
+          <p style={{ color: "red", fontSize: 12 }}>{errors.govIdType}</p>
+        )}
+      </div>
+
+      <FormInput label="Enter ID Number" name="govIdNumber" value={form.govIdNumber} onChange={handleChange} error={errors.govIdNumber} />
+      <FormInput label="Password" name="password" type="password" value={form.password} onChange={handleChange} error={errors.password} />
+      <FormInput label="Confirm Password" name="confirmPassword" type="password" value={form.confirmPassword} onChange={handleChange} error={errors.confirmPassword} />
+
+      {/* ✅ Success Message Display */}
+      {successMessage && (
+        <p style={{
+          color: "green",
+          fontWeight: "bold",
+          marginBottom: 10,
+          textAlign: "center"
+        }}>
+          {successMessage}
+        </p>
+      )}
 
       <button
         onClick={handleRegister}
@@ -233,7 +254,7 @@ case "govIdNumber":
           fontWeight: "bold",
           fontSize: 16,
           cursor: "pointer",
-          marginTop: 15,
+          marginTop: 10,
         }}
       >
         Submit

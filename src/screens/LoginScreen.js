@@ -10,6 +10,9 @@ export default function LoginScreen() {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
   const validateEmailFormat = (email) => /\S+@\S+\.\S+/.test(email);
 
   const handleEmailBlur = () => {
@@ -32,16 +35,25 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      window.alert("All fields are required");
+      setErrorMessage("All fields are required");
       return;
     }
 
     try {
       await loginUser({ email, password });
-      window.alert("Login Successful!");
-      navigate("/kyc"); // Navigate to KYC screen
+
+      // ✅ Show success message
+      setSuccessMessage("Login Successful!");
+      setErrorMessage("");
+
+      // ✅ Navigate after 2 seconds
+      setTimeout(() => {
+        navigate("/kyc");
+      }, 2000);
+
     } catch (err) {
-      window.alert("Username or password is wrong"); // Show error popup
+      setErrorMessage("Username or password is wrong");
+      setSuccessMessage("");
     }
   };
 
@@ -76,15 +88,7 @@ export default function LoginScreen() {
         }}
       />
       {emailError && (
-        <p
-          style={{
-            color: "red",
-            width: "40%",
-            marginBottom: 15,
-            fontSize: 14,
-            textAlign: "center",
-          }}
-        >
+        <p style={{ color: "red", width: "40%", marginBottom: 15, fontSize: 14 }}>
           {emailError}
         </p>
       )}
@@ -104,16 +108,22 @@ export default function LoginScreen() {
         }}
       />
       {passwordError && (
-        <p
-          style={{
-            color: "red",
-            width: "40%",
-            marginBottom: 15,
-            fontSize: 14,
-            textAlign: "center",
-          }}
-        >
+        <p style={{ color: "red", width: "40%", marginBottom: 15, fontSize: 14 }}>
           {passwordError}
+        </p>
+      )}
+
+      {/* ✅ Success Message */}
+      {successMessage && (
+        <p style={{ color: "green", marginBottom: 15, fontWeight: "bold" }}>
+          {successMessage}
+        </p>
+      )}
+
+      {/* ❌ Error Message */}
+      {errorMessage && (
+        <p style={{ color: "red", marginBottom: 15, fontWeight: "bold" }}>
+          {errorMessage}
         </p>
       )}
 
