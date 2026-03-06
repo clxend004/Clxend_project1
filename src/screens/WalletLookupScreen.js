@@ -25,7 +25,7 @@ export default function WalletLookupScreen() {
   // ================= SEARCH HANDLER =================
   const handleSearch = async () => {
     if (!searchValue) {
-      setError("Enter phone or email");
+      setError("Enter phone number or email id");
       return;
     }
 

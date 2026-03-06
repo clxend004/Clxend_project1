@@ -1,34 +1,33 @@
-// Get wallet data from localStorage
-export const getWalletData = async () => {
-  const data = localStorage.getItem("walletData");
+// Mock wallet database
+const wallets = [
+  {
+    email: "test@mail.com",
+    walletId: "WLT-894739",
+    userReference: "USER-001",
+  },
+  {
+    email: "demo@mail.com",
+    walletId: "WLT-456123",
+    userReference: "USER-002",
+  },
+];
 
-  if (!data) {
-    const initialData = { balance: 5000, transactions: [] };
-    localStorage.setItem("walletData", JSON.stringify(initialData));
-    return initialData;
+// ================= WALLET LOOKUP =================
+export const lookupWallet = async (email) => {
+  if (!email) {
+    throw new Error("Email is required");
   }
 
-  return JSON.parse(data);
-};
+  // simulate API delay
+  await new Promise((resolve) => setTimeout(resolve, 800));
 
-// Send money
-export const sendMoney = async (amount, to) => {
-  const data = await getWalletData();
+  const wallet = wallets.find(
+    (w) => w.email.toLowerCase() === email.toLowerCase()
+  );
 
-  if (amount > data.balance) throw new Error("Insufficient balance");
+  if (!wallet) {
+    throw new Error("Wallet not found");
+  }
 
-  const newTransaction = {
-    id: Date.now(),
-    to,
-    amount,
-    date: new Date().toLocaleString(),
-  };
-
-  const updatedData = {
-    balance: data.balance - amount,
-    transactions: [newTransaction, ...data.transactions],
-  };
-
-  localStorage.setItem("walletData", JSON.stringify(updatedData));
-  return updatedData;
+  return wallet;
 };
