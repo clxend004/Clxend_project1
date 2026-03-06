@@ -15,6 +15,8 @@ export default function KYCScreen() {
   const [loading, setLoading] = useState(false);
   const [cameraOn, setCameraOn] = useState(false);
 
+  const [message, setMessage] = useState(""); // ⭐ added for temporary messages
+
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const selfieInputRef = useRef(null);
@@ -22,7 +24,8 @@ export default function KYCScreen() {
   // ================= OTP GENERATION =================
   const handleGenerateOtp = () => {
     if (!govId) {
-      window.alert("Please enter Aadhaar / PAN number");
+      setMessage("Please enter Aadhaar / PAN number");
+      setTimeout(() => setMessage(""), 3000);
       return;
     }
 
@@ -31,16 +34,22 @@ export default function KYCScreen() {
     setOtpSent(true);
 
     console.log("Generated OTP:", otp);
-    window.alert("OTP generated! Check console.");
+
+    setMessage("OTP generated! Check console.");
+    setTimeout(() => setMessage(""), 3000);
   };
 
   // ================= OTP VERIFY =================
   const handleVerifyOtp = () => {
     if (enteredOtp === generatedOtp) {
       setOtpVerified(true);
-      window.alert("OTP Verified Successfully");
+
+      setMessage("OTP Verified Successfully");
+      setTimeout(() => setMessage(""), 3000);
+
     } else {
-      window.alert("Invalid OTP");
+      setMessage("Invalid OTP");
+      setTimeout(() => setMessage(""), 3000);
     }
   };
 
@@ -138,32 +147,46 @@ export default function KYCScreen() {
     setCameraOn(false);
   };
 
-  // ================= HANDLE SELFIE BUTTON (OPTION 1) =================
+  // ================= HANDLE SELFIE BUTTON =================
   const handleSelfieOption = () => {
-  const choice = window.confirm(
-    "Press OK to open Camera\nPress Cancel to Upload Image"
-  );
+    const choice = window.confirm(
+      "Press OK to open Camera\nPress Cancel to Upload Image"
+    );
 
-  if (choice) {
-    startCamera();
-  } else {
-    if (selfieInputRef.current) {
-      selfieInputRef.current.click();
+    if (choice) {
+      startCamera();
+    } else {
+      if (selfieInputRef.current) {
+        selfieInputRef.current.click();
+      }
     }
-  }
-};
+  };
 
   // ================= HANDLE SELFIE UPLOAD =================
   const handleSelfieUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const file = e.target.files[0];
+  if (!file) return;
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setSelfie(reader.result);
-    };
-    reader.readAsDataURL(file);
+  const allowedTypes = ["image/jpeg", "image/png"];
+
+  // File type validation
+  if (!allowedTypes.includes(file.type)) {
+    window.alert("Only JPG or PNG images allowed");
+    return;
+  }
+
+  // File size validation (2MB)
+  if (file.size > 2 * 1024 * 1024) {
+    window.alert("Selfie must be less than 2MB");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onloadend = () => {
+    setSelfie(reader.result);
   };
+  reader.readAsDataURL(file);
+};
 
   // Cleanup
   useEffect(() => {
@@ -208,6 +231,18 @@ export default function KYCScreen() {
       }}
     >
       <h2 style={{ marginBottom: 20 }}>KYC Verification</h2>
+
+      {/* ⭐ Temporary Message */}
+      {message && (
+        <p
+          style={{
+            marginBottom: 10,
+            fontWeight: "bold",
+          }}
+        >
+          {message}
+        </p>
+      )}
 
       <input
         type="text"
@@ -327,12 +362,12 @@ export default function KYCScreen() {
               </button>
 
               <input
-  ref={selfieInputRef}
-  type="file"
-  accept="image/*"
-  onChange={handleSelfieUpload}
-  style={{ display: "none" }}
-/>
+                ref={selfieInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleSelfieUpload}
+                style={{ display: "none" }}
+              />
             </>
           )}
 

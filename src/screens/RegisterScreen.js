@@ -9,6 +9,7 @@ function FormInput({
   type = "text",
   value,
   onChange,
+  onBlur,
   error,
 }) {
   return (
@@ -18,6 +19,7 @@ function FormInput({
         placeholder={label}
         value={value}
         onChange={(e) => onChange(name, e.target.value)}
+        onBlur={() => onBlur(name, value)}
         style={{
           width: "100%",
           padding: 8,
@@ -51,6 +53,13 @@ export default function RegisterScreen() {
 
   // ✅ Real-time validation while typing
   const handleChange = (name, value) => {
+
+    // ✅ Restrict Mobile Number input
+    if (name === "mobile") {
+      value = value.replace(/\D/g, ""); // remove letters
+      if (value.length > 10) return; // stop after 10 digits
+    }
+
     setForm((prev) => ({ ...prev, [name]: value }));
 
     let error = "";
@@ -58,6 +67,8 @@ export default function RegisterScreen() {
     switch (name) {
       case "fullName":
         if (!value) error = "Full Name is required";
+        else if (!/^[A-Za-z\s]+$/.test(value))
+          error = "Full Name should contain only letters";
         break;
 
       case "email":
@@ -119,11 +130,17 @@ export default function RegisterScreen() {
     setErrors((prev) => ({ ...prev, [name]: error }));
   };
 
-  // ✅ Full validation on submit
+  const handleBlur = (name, value) => {
+    handleChange(name, value);
+  };
+
+  // Full validation
   const validateForm = () => {
     let newErrors = {};
 
     if (!form.fullName) newErrors.fullName = "Full Name is required";
+    else if (!/^[A-Za-z\s]+$/.test(form.fullName))
+      newErrors.fullName = "Full Name should contain only letters";
 
     if (!form.email) newErrors.email = "Email is required";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
@@ -159,7 +176,6 @@ export default function RegisterScreen() {
 
   const handleRegister = async () => {
     const isValid = validateForm();
-
     if (!isValid) return;
 
     try {
@@ -170,10 +186,8 @@ export default function RegisterScreen() {
         govIdNumber: form.govIdNumber,
       });
 
-      // ✅ Show success message
       setSuccessMessage("Registration Successful! Redirecting to login...");
 
-      // ✅ Redirect after 3 seconds
       setTimeout(() => {
         navigate("/login");
       }, 3000);
@@ -199,16 +213,17 @@ export default function RegisterScreen() {
     >
       <h2 style={{ textAlign: "center", marginBottom: 20 }}>Register</h2>
 
-      <FormInput label="Full Name" name="fullName" value={form.fullName} onChange={handleChange} error={errors.fullName} />
-      <FormInput label="Email ID" name="email" type="email" value={form.email} onChange={handleChange} error={errors.email} />
-      <FormInput label="Mobile Number" name="mobile" type="tel" value={form.mobile} onChange={handleChange} error={errors.mobile} />
-      <FormInput label="Date of Birth" name="dob" type="date" value={form.dob} onChange={handleChange} error={errors.dob} />
-      <FormInput label="Address" name="address" value={form.address} onChange={handleChange} error={errors.address} />
+      <FormInput label="Full Name *" name="fullName" value={form.fullName} onChange={handleChange} onBlur={handleBlur} error={errors.fullName} />
+      <FormInput label="Email ID *" name="email" type="email" value={form.email} onChange={handleChange} onBlur={handleBlur} error={errors.email} />
+      <FormInput label="Mobile Number *" name="mobile" type="tel" value={form.mobile} onChange={handleChange} onBlur={handleBlur} error={errors.mobile} />
+      <FormInput label="Date of Birth *" name="dob" type="date" value={form.dob} onChange={handleChange} onBlur={handleBlur} error={errors.dob} />
+      <FormInput label="Address *" name="address" value={form.address} onChange={handleChange} onBlur={handleBlur} error={errors.address} />
 
       <div style={{ marginBottom: 10, width: "100%" }}>
         <select
           value={form.govIdType}
           onChange={(e) => handleChange("govIdType", e.target.value)}
+          onBlur={(e) => handleBlur("govIdType", e.target.value)}
           style={{
             width: "100%",
             padding: 8,
@@ -216,7 +231,7 @@ export default function RegisterScreen() {
             border: errors.govIdType ? "1px solid red" : "1px solid #ccc",
           }}
         >
-          <option value="">Select Government ID Type</option>
+          <option value="">Select Government ID Type *</option>
           <option value="aadhaar">Aadhaar</option>
           <option value="pan">PAN Card</option>
           <option value="voter">Voter ID</option>
@@ -227,11 +242,10 @@ export default function RegisterScreen() {
         )}
       </div>
 
-      <FormInput label="Enter ID Number" name="govIdNumber" value={form.govIdNumber} onChange={handleChange} error={errors.govIdNumber} />
-      <FormInput label="Password" name="password" type="password" value={form.password} onChange={handleChange} error={errors.password} />
-      <FormInput label="Confirm Password" name="confirmPassword" type="password" value={form.confirmPassword} onChange={handleChange} error={errors.confirmPassword} />
+      <FormInput label="Enter ID Number *" name="govIdNumber" value={form.govIdNumber} onChange={handleChange} onBlur={handleBlur} error={errors.govIdNumber} />
+      <FormInput label="Password *" name="password" type="password" value={form.password} onChange={handleChange} onBlur={handleBlur} error={errors.password} />
+      <FormInput label="Confirm Password *" name="confirmPassword" type="password" value={form.confirmPassword} onChange={handleChange} onBlur={handleBlur} error={errors.confirmPassword} />
 
-      {/* ✅ Success Message Display */}
       {successMessage && (
         <p style={{
           color: "green",
