@@ -1,6 +1,6 @@
 import React from "react";
 
-// Optional: inline styling
+// styling
 const styles = {
   button: {
     backgroundColor: "#007BFF",
