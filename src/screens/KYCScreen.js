@@ -15,7 +15,7 @@ export default function KYCScreen() {
   const [loading, setLoading] = useState(false);
   const [cameraOn, setCameraOn] = useState(false);
 
-  const [message, setMessage] = useState(""); // ⭐ added for temporary messages
+  const [message, setMessage] = useState(""); //  added for temporary messages
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
