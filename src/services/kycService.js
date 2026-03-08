@@ -2,19 +2,33 @@ let kycStatus = "Not Submitted";
 let currentOtp = null; // store OTP
 
 // Submit KYC data
-export const submitKYC = async (data) => {
+export const submitKYC = async (data, onProgress) => {
   console.log("KYC Data Submitted:", data);
 
   return new Promise((resolve) => {
-    setTimeout(() => {
-      kycStatus = "Pending";
+    let progress = 0;
 
-      // Generate dynamic OTP
-      currentOtp = Math.floor(1000 + Math.random() * 9000).toString();
-      console.log("Generated OTP (check console!):", currentOtp);
+    const interval = setInterval(() => {
+      progress += 20;
 
-      resolve({ message: "OTP Sent", otp: currentOtp });
-    }, 1000);
+      if (onProgress) {
+        onProgress(progress);
+      }
+
+      if (progress === 100) {
+        clearInterval(interval);
+
+        setTimeout(() => {
+          kycStatus = "Pending";
+
+          // Generate dynamic OTP
+          currentOtp = Math.floor(1000 + Math.random() * 9000).toString();
+          console.log("Generated OTP (check console!):", currentOtp);
+
+          resolve({ message: "OTP Sent", otp: currentOtp });
+        }, 1000);
+      }
+    }, 300);
   });
 };
 

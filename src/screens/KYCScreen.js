@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { submitKYC } from "../services/kycService";
 
 export default function KYCScreen() {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ export default function KYCScreen() {
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
   const [cameraOn, setCameraOn] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   const [message, setMessage] = useState(""); //  added for temporary messages
 
@@ -196,22 +198,39 @@ export default function KYCScreen() {
   }, []);
 
   // ================= FINAL SUBMIT =================
-  const handleFinalSubmit = () => {
-    if (!documentFile || !selfie) {
-      window.alert("Upload document and capture selfie");
-      return;
-    }
+  const handleFinalSubmit = async () => {
+  if (!documentFile || !selfie) {
+    window.alert("Upload document and capture selfie");
+    return;
+  }
 
-    setLoading(true);
-    setStatus("Pending");
+  setLoading(true);
+  setStatus("Pending");
 
-    setTimeout(() => {
-      const finalStatus = "Approved";
-      setStatus(finalStatus);
-      setLoading(false);
-    }, 3000);
+  const payload = {
+    governmentId: govId,
+    document: documentFile,
+    selfie: selfie,
   };
 
+  try {
+    const response = await submitKYC(payload, (p) => {
+      setProgress(p);
+    });
+
+    if (response.success) {
+      setStatus("Approved");
+    } else {
+      setStatus("Rejected");
+    }
+
+  } catch (error) {
+    window.alert(error.message || "KYC submission failed");
+    setStatus("Rejected");
+  } finally {
+    setLoading(false);
+  }
+};
   const getStatusColor = () => {
     if (status === "Approved") return "green";
     if (status === "Rejected") return "red";
@@ -471,7 +490,11 @@ export default function KYCScreen() {
         </>
       )}
 
-      {loading && <p style={{ marginTop: 20 }}>Loading...</p>}
+      {loading && (
+  <p style={{ marginTop: 20 }}>
+    Uploading... {progress}%
+  </p>
+)}
 
       {status && (
         <p
