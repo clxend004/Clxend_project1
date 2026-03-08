@@ -1,12 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { submitKYC } from "../services/kycService";
+import { submitKYC, verifyOTP } from "../services/kycService";
 
 export default function KYCScreen() {
   const navigate = useNavigate();
 
   const [govId, setGovId] = useState("");
-  const [generatedOtp, setGeneratedOtp] = useState("");
   const [enteredOtp, setEnteredOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
@@ -24,36 +23,41 @@ export default function KYCScreen() {
   const selfieInputRef = useRef(null);
 
   // ================= OTP GENERATION =================
-  const handleGenerateOtp = () => {
-    if (!govId) {
-      setMessage("Please enter Aadhaar / PAN number");
-      setTimeout(() => setMessage(""), 3000);
-      return;
-    }
+const handleGenerateOtp = async () => {
+  if (!govId) {
+    setMessage("Please enter Aadhaar / PAN number");
+    setTimeout(() => setMessage(""), 3000);
+    return;
+  }
 
-    const otp = Math.floor(1000 + Math.random() * 9000).toString();
-    setGeneratedOtp(otp);
+  try {
+    const response = await submitKYC({ govId });
+
     setOtpSent(true);
 
-    console.log("Generated OTP:", otp);
+    console.log("Generated OTP:", response.otp);
 
     setMessage("OTP generated! Check console.");
     setTimeout(() => setMessage(""), 3000);
-  };
-
+  } catch (error) {
+    setMessage("Failed to generate OTP");
+    setTimeout(() => setMessage(""), 3000);
+  }
+};
   // ================= OTP VERIFY =================
-  const handleVerifyOtp = () => {
-    if (enteredOtp === generatedOtp) {
-      setOtpVerified(true);
+  const handleVerifyOtp = async () => {
+  try {
+    await verifyOTP(enteredOtp);
 
-      setMessage("OTP Verified Successfully");
-      setTimeout(() => setMessage(""), 3000);
+    setOtpVerified(true);
+    setMessage("OTP Verified Successfully");
 
-    } else {
-      setMessage("Invalid OTP");
-      setTimeout(() => setMessage(""), 3000);
-    }
-  };
+    setTimeout(() => setMessage(""), 3000);
+  } catch (error) {
+    setMessage("Invalid OTP");
+    setTimeout(() => setMessage(""), 3000);
+  }
+};
 
   // ================= DOCUMENT PICK =================
   const pickDocument = (e) => {
@@ -207,36 +211,40 @@ export default function KYCScreen() {
   setLoading(true);
   setStatus("Pending");
 
-  const payload = {
-    governmentId: govId,
-    document: documentFile,
-    selfie: selfie,
-  };
-
   try {
-    const response = await submitKYC(payload, (p) => {
-      setProgress(p);
-    });
+    let progressValue = 0;
 
-    if (response.success) {
-      setStatus("Approved");
-    } else {
-      setStatus("Rejected");
-    }
+    const interval = setInterval(() => {
+      progressValue += 20;
+      setProgress(progressValue);
+
+      if (progressValue === 100) {
+        clearInterval(interval);
+
+        setTimeout(() => {
+          if (otpVerified) {
+            setStatus("Approved");
+          } else {
+            setStatus("Rejected");
+          }
+          setLoading(false);
+        }, 500);
+      }
+    }, 300);
 
   } catch (error) {
     window.alert(error.message || "KYC submission failed");
     setStatus("Rejected");
-  } finally {
     setLoading(false);
   }
 };
-  const getStatusColor = () => {
-    if (status === "Approved") return "green";
-    if (status === "Rejected") return "red";
-    if (status === "Pending") return "orange";
-    return "black";
-  };
+
+const getStatusColor = () => {
+  if (status === "Approved") return "green";
+  if (status === "Rejected") return "red";
+  if (status === "Pending") return "orange";
+  return "black";
+};
 
   return (
     <div
