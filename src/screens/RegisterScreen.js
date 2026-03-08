@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../services/authService";
+import Loader from "../components/Loader"; // ✅ Spinner import
 
 // Modular input component
 function FormInput({
@@ -50,14 +51,14 @@ export default function RegisterScreen() {
 
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState(""); // ✅ Step 6
+  const [loading, setLoading] = useState(false);
 
-  // ✅ Real-time validation while typing
   const handleChange = (name, value) => {
 
-    // ✅ Restrict Mobile Number input
     if (name === "mobile") {
-      value = value.replace(/\D/g, ""); // remove letters
-      if (value.length > 10) return; // stop after 10 digits
+      value = value.replace(/\D/g, "");
+      if (value.length > 10) return;
     }
 
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -134,7 +135,6 @@ export default function RegisterScreen() {
     handleChange(name, value);
   };
 
-  // Full validation
   const validateForm = () => {
     let newErrors = {};
 
@@ -179,21 +179,29 @@ export default function RegisterScreen() {
     if (!isValid) return;
 
     try {
-      await registerUser({
+      setLoading(true); // ✅ Step 4
+
+      const response = await registerUser({
         email: form.email,
         password: form.password,
         govIdType: form.govIdType,
         govIdNumber: form.govIdNumber,
       });
 
-      setSuccessMessage("Registration Successful! Redirecting to login...");
+      setSuccessMessage(
+        response.message || "Registration Successful! Redirecting to login..."
+      );
+      setErrorMessage("");
 
       setTimeout(() => {
-        navigate("/login");
+        navigate("/login"); // ✅ Step 7
       }, 3000);
 
     } catch (err) {
-      alert("Registration Failed: " + err.message);
+      setErrorMessage(err.message || "Registration Failed"); // ✅ Step 6
+      setSuccessMessage("");
+    } finally {
+      setLoading(false); // stop spinner
     }
   };
 
@@ -246,6 +254,9 @@ export default function RegisterScreen() {
       <FormInput label="Password *" name="password" type="password" value={form.password} onChange={handleChange} onBlur={handleBlur} error={errors.password} />
       <FormInput label="Confirm Password *" name="confirmPassword" type="password" value={form.confirmPassword} onChange={handleChange} onBlur={handleBlur} error={errors.confirmPassword} />
 
+      {/* ✅ Spinner */}
+      {loading && <Loader />}
+
       {successMessage && (
         <p style={{
           color: "green",
@@ -257,8 +268,20 @@ export default function RegisterScreen() {
         </p>
       )}
 
+      {errorMessage && (
+        <p style={{
+          color: "red",
+          fontWeight: "bold",
+          marginBottom: 10,
+          textAlign: "center"
+        }}>
+          {errorMessage}
+        </p>
+      )}
+
       <button
         onClick={handleRegister}
+        disabled={loading}
         style={{
           width: "100%",
           padding: 10,
@@ -267,11 +290,11 @@ export default function RegisterScreen() {
           color: "#fff",
           fontWeight: "bold",
           fontSize: 16,
-          cursor: "pointer",
+          cursor: loading ? "not-allowed" : "pointer",
           marginTop: 10,
         }}
       >
-        Submit
+        {loading ? "Registering..." : "Submit"}
       </button>
 
       <p

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { loginUser } from "../services/authService";
 import { useNavigate } from "react-router-dom";
+import Loader from "../components/Loader"; // ✅ Step 4: import spinner
 
 export default function LoginScreen() {
   const navigate = useNavigate();
@@ -12,6 +13,8 @@ export default function LoginScreen() {
 
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+
+  const [loading, setLoading] = useState(false);
 
   const validateEmailFormat = (email) => /\S+@\S+\.\S+/.test(email);
 
@@ -40,20 +43,25 @@ export default function LoginScreen() {
     }
 
     try {
-      await loginUser({ email, password });
+      setLoading(true); // ✅ Step 4: start loader
 
-      // ✅ Show success message
-      setSuccessMessage("Login Successful!");
+      const response = await loginUser({ email, password });
+
+      // ✅ Step 6: structured success handling
+      setSuccessMessage(response.message || "Login Successful!");
       setErrorMessage("");
 
-      // ✅ Navigate after 2 seconds
+      // ✅ Step 7: navigation after login
       setTimeout(() => {
         navigate("/kyc");
       }, 2000);
 
     } catch (err) {
-      setErrorMessage("Username or password is wrong");
+      // ✅ Step 6: meaningful error handling
+      setErrorMessage(err.message || "Username or password is wrong");
       setSuccessMessage("");
+    } finally {
+      setLoading(false); // ✅ stop loader
     }
   };
 
@@ -113,6 +121,9 @@ export default function LoginScreen() {
         </p>
       )}
 
+      {/* ✅ Step 4: Loading Spinner */}
+      {loading && <Loader />}
+
       {/* ✅ Success Message */}
       {successMessage && (
         <p style={{ color: "green", marginBottom: 15, fontWeight: "bold" }}>
@@ -129,6 +140,7 @@ export default function LoginScreen() {
 
       <button
         onClick={handleLogin}
+        disabled={loading} // ✅ Step 5: disable button
         style={{
           width: "35%",
           padding: 12,
@@ -137,11 +149,11 @@ export default function LoginScreen() {
           color: "#fff",
           fontWeight: "bold",
           fontSize: 16,
-          cursor: "pointer",
+          cursor: loading ? "not-allowed" : "pointer",
           marginTop: 10,
         }}
       >
-        Login
+        {loading ? "Logging in..." : "Login"}
       </button>
     </div>
   );

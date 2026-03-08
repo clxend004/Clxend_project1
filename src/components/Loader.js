@@ -11,14 +11,18 @@ const spinnerStyle = {
   margin: "20px auto",
 };
 
-// Add keyframes for spinning
+// Ensure keyframes exist only once
 const styleSheet = document.styleSheets[0];
-const keyframes =
-  `@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }`;
-styleSheet.insertRule(keyframes, styleSheet.cssRules.length);
+const keyframes = `
+@keyframes spin {
+0% { transform: rotate(0deg); }
+100% { transform: rotate(360deg); }
+}
+`;
+
+try {
+  styleSheet.insertRule(keyframes, styleSheet.cssRules.length);
+} catch (e) {}
 
 export default function Loader() {
   return <div style={spinnerStyle}></div>;
