@@ -1,48 +1,40 @@
-// Register user and save in localStorage
-export const registerUser = async ({ email, password }) => {
-  try {
-    if (!email || !password) {
-      throw new Error("Email and password required");
-    }
+import { getRequest, postRequest } from "./api";
 
-    // Save the user in localStorage
-    localStorage.setItem(
-      "registeredUser",
-      JSON.stringify({ email: email.trim().toLowerCase(), password })
-    );
+// Register
+export const registerUser = async (data) => {
+  try {
+    const response = await postRequest("/users", data);
 
     return {
       success: true,
-      message: "User registered successfully",
+      message: "Registration successful",
+      user: response,
     };
   } catch (error) {
     throw new Error(error.message || "Registration failed");
   }
 };
 
-// Login user and validate
+// Login
 export const loginUser = async ({ email, password }) => {
   try {
-    const storedUser = localStorage.getItem("registeredUser");
+    const users = await getRequest("/users");
 
-    if (!storedUser) {
-      throw new Error("No registered user found");
+    const user = users.find(
+      (u) =>
+        u.email.toLowerCase() === email.toLowerCase() &&
+        u.password === password
+    );
+
+    if (!user) {
+      throw new Error("Invalid credentials");
     }
 
-    const parsedUser = JSON.parse(storedUser);
-
-    if (
-      parsedUser &&
-      email.trim().toLowerCase() === parsedUser.email &&
-      password === parsedUser.password
-    ) {
-      return {
-        success: true,
-        message: "Login successful",
-      };
-    } else {
-      throw new Error("Wrong username or password");
-    }
+    return {
+      success: true,
+      message: "Login successful",
+      user,
+    };
   } catch (error) {
     throw new Error(error.message || "Login failed");
   }

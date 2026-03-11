@@ -1,9 +1,12 @@
 import axios from "axios";
 
 // Use environment variable for React
-const BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || "https://api.mywallet.com";
+const API_TYPE = process.env.REACT_APP_API_TYPE;
 
+const BASE_URL =
+  API_TYPE === "mock"
+    ? process.env.REACT_APP_MOCK_API
+    : process.env.REACT_APP_API_URL;
 // Create axios instance
 const api = axios.create({
   baseURL: BASE_URL,
@@ -49,10 +52,5 @@ export const postRequest = async (url, data = {}) => {
   const response = await api.post(url, data);
   return response.data;
 };
-
-// Auth APIs (from api.js)
-export const loginUser = (data) => api.post("/login", data);
-
-export const registerUser = (data) => api.post("/register", data);
 
 export default api;

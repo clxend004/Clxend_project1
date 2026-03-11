@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { registerUser } from "../services/authService";
 import Loader from "../components/Loader"; // ✅ Spinner import
 
+
 // Modular input component
 function FormInput({
   label,
@@ -182,11 +183,15 @@ export default function RegisterScreen() {
       setLoading(true); // ✅ Step 4
 
       const response = await registerUser({
-        email: form.email,
-        password: form.password,
-        govIdType: form.govIdType,
-        govIdNumber: form.govIdNumber,
-      });
+  fullName: form.fullName,
+  email: form.email,
+  mobile: form.mobile,
+  dob: form.dob,
+  address: form.address,
+  govIdType: form.govIdType,
+  govIdNumber: form.govIdNumber,
+  password: form.password
+});
 
       setSuccessMessage(
         response.message || "Registration Successful! Redirecting to login..."

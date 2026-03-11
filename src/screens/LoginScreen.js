@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { loginUser } from "../services/authService";
 import { useNavigate } from "react-router-dom";
-import Loader from "../components/Loader"; // ✅ Step 4: import spinner
+import Loader from "../components/Loader";
 
 export default function LoginScreen() {
   const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -37,31 +38,39 @@ export default function LoginScreen() {
   };
 
   const handleLogin = async () => {
+    // Clear previous messages
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    // Validate before API call
     if (!email || !password) {
       setErrorMessage("All fields are required");
       return;
     }
 
+    if (emailError || passwordError) {
+      return;
+    }
+
     try {
-      setLoading(true); // ✅ Step 4: start loader
+      setLoading(true);
 
       const response = await loginUser({ email, password });
 
-      // ✅ Step 6: structured success handling
-      setSuccessMessage(response.message || "Login Successful!");
-      setErrorMessage("");
+      if (response.success) {
+        setSuccessMessage(response.message || "Login Successful!");
 
-      // ✅ Step 7: navigation after login
-      setTimeout(() => {
-        navigate("/kyc");
-      }, 2000);
+        setTimeout(() => {
+          navigate("/kyc");
+        }, 2000);
+      } else {
+        setErrorMessage(response.message || "Login failed");
+      }
 
     } catch (err) {
-      // ✅ Step 6: meaningful error handling
       setErrorMessage(err.message || "Username or password is wrong");
-      setSuccessMessage("");
     } finally {
-      setLoading(false); // ✅ stop loader
+      setLoading(false);
     }
   };
 
@@ -95,6 +104,7 @@ export default function LoginScreen() {
           marginBottom: 5,
         }}
       />
+
       {emailError && (
         <p style={{ color: "red", width: "40%", marginBottom: 15, fontSize: 14 }}>
           {emailError}
@@ -115,23 +125,21 @@ export default function LoginScreen() {
           marginBottom: 5,
         }}
       />
+
       {passwordError && (
         <p style={{ color: "red", width: "40%", marginBottom: 15, fontSize: 14 }}>
           {passwordError}
         </p>
       )}
 
-      {/* ✅ Step 4: Loading Spinner */}
       {loading && <Loader />}
 
-      {/* ✅ Success Message */}
       {successMessage && (
         <p style={{ color: "green", marginBottom: 15, fontWeight: "bold" }}>
           {successMessage}
         </p>
       )}
 
-      {/* ❌ Error Message */}
       {errorMessage && (
         <p style={{ color: "red", marginBottom: 15, fontWeight: "bold" }}>
           {errorMessage}
@@ -140,7 +148,7 @@ export default function LoginScreen() {
 
       <button
         onClick={handleLogin}
-        disabled={loading} // ✅ Step 5: disable button
+        disabled={loading}
         style={{
           width: "35%",
           padding: 12,

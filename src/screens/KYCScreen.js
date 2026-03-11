@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { submitKYC, verifyOTP } from "../services/kycService";
+import { submitKYC, verifyOTP, saveKYC } from "../services/kycService";
 
 export default function KYCScreen() {
   const navigate = useNavigate();
@@ -221,14 +221,22 @@ const handleGenerateOtp = async () => {
       if (progressValue === 100) {
         clearInterval(interval);
 
-        setTimeout(() => {
-          if (otpVerified) {
-            setStatus("Approved");
-          } else {
-            setStatus("Rejected");
-          }
-          setLoading(false);
-        }, 500);
+        setTimeout(async () => {
+  if (otpVerified) {
+
+    await saveKYC({
+      userId: 1,
+      govId
+    });
+
+    setStatus("Approved");
+
+  } else {
+    setStatus("Rejected");
+  }
+
+  setLoading(false);
+}, 500);
       }
     }, 300);
 

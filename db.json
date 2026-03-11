@@ -1,0 +1,53 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "email": "test@gmail.com",
+      "password": "123456"
+    },
+    {
+      "id": "79ef",
+      "fullName": "San",
+      "email": "san@gmail.com",
+      "mobile": "1234567890",
+      "dob": "1996-07-05",
+      "address": "Avadi, Chennai",
+      "govIdType": "aadhaar",
+      "govIdNumber": "123412341234",
+      "password": "123456"
+    },
+    {
+      "id": "a2c5",
+      "fullName": "San",
+      "email": "san@gmail.com",
+      "mobile": "1234567890",
+      "dob": "1996-07-05",
+      "address": "Avadi, Chennai",
+      "govIdType": "aadhaar",
+      "govIdNumber": "123412341234",
+      "password": "123456"
+    }
+  ],
+  "kyc": [
+    {
+      "id": "1",
+      "userId": 1,
+      "govId": "A1234567",
+      "status": "Pending"
+    },
+    {
+      "id": "e3dc",
+      "userId": 1,
+      "govId": "12312341234",
+      "status": "Pending"
+    }
+  ],
+  "wallets": [
+    {
+      "id": "1",
+      "walletId": "WALLET123",
+      "balance": 5000
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}
