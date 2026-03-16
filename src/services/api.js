@@ -6,11 +6,16 @@ const API_TYPE = process.env.REACT_APP_API_TYPE;
 const BASE_URL =
   API_TYPE === "mock"
     ? process.env.REACT_APP_MOCK_API
-    : process.env.REACT_APP_API_URL;
+    : process.env.REACT_APP_REAL_API;
+
+console.log("API TYPE:", API_TYPE);
+console.log("BASE URL:", BASE_URL);
+console.log("REAL API:", process.env.REACT_APP_REAL_API);
+console.log("MOCK API:", process.env.REACT_APP_MOCK_API);
 // Create axios instance
 const api = axios.create({
   baseURL: BASE_URL,
-  timeout: 5000,
+  timeout: 10000,
   headers: {
     "Content-Type": "application/json",
   },

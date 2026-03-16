@@ -6,19 +6,8 @@
       "password": "123456"
     },
     {
-      "id": "79ef",
-      "fullName": "San",
-      "email": "san@gmail.com",
-      "mobile": "1234567890",
-      "dob": "1996-07-05",
-      "address": "Avadi, Chennai",
-      "govIdType": "aadhaar",
-      "govIdNumber": "123412341234",
-      "password": "123456"
-    },
-    {
-      "id": "a2c5",
-      "fullName": "San",
+      "id": "7e03",
+      "fullName": "sam",
       "email": "san@gmail.com",
       "mobile": "1234567890",
       "dob": "1996-07-05",
@@ -31,22 +20,67 @@
   "kyc": [
     {
       "id": "1",
-      "userId": 1,
+      "userId": "1",
       "govId": "A1234567",
       "status": "Pending"
     },
     {
-      "id": "e3dc",
+      "id": "9695",
       "userId": 1,
-      "govId": "12312341234",
+      "govId": "123456789012",
+      "status": "Pending"
+    },
+    {
+      "id": "78d7",
+      "userId": 1,
+      "govId": "123456789012",
+      "status": "Pending"
+    },
+    {
+      "id": "81ec",
+      "userId": 1,
+      "govId": "123456789012",
       "status": "Pending"
     }
   ],
   "wallets": [
     {
       "id": "1",
-      "walletId": "WALLET123",
-      "balance": 5000
+      "email": "test@mail.com",
+      "phone": "9876543210",
+      "walletId": "WLT-894739",
+      "userReference": "USER-001",
+      "walletAddress": "0x9a34Fbc89012345",
+      "balance": 5200
+    }
+  ],
+  "transactions": [
+    {
+      "id": "1",
+      "txHash": "0x123abc",
+      "amount": 250,
+      "sender": "USER-001",
+      "recipient": "USER-002",
+      "status": "Confirmed",
+      "timestamp": "2026-03-15 10:30 AM"
+    },
+    {
+      "id": "2",
+      "txHash": "0x456def",
+      "amount": 120,
+      "sender": "USER-002",
+      "recipient": "USER-003",
+      "status": "Pending",
+      "timestamp": "2026-03-15 11:15 AM"
+    },
+    {
+      "id": "3",
+      "txHash": "0x789ghi",
+      "amount": 75,
+      "sender": "USER-003",
+      "recipient": "USER-001",
+      "status": "Failed",
+      "timestamp": "2026-03-15 12:00 PM"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
