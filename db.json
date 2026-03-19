@@ -6,17 +6,6 @@
       "password": "123456"
     },
     {
-      "id": "b15a",
-      "fullName": "San",
-      "email": "san@gmail.com",
-      "mobile": "1234567890",
-      "dob": "1996-07-05",
-      "address": "Avadi, Chennai",
-      "govIdType": "aadhaar",
-      "govIdNumber": "123412341234",
-      "password": "123456"
-    },
-    {
       "id": "384e",
       "fullName": "San",
       "email": "san@gmail.com",
