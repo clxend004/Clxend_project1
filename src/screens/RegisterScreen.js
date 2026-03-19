@@ -180,7 +180,7 @@ export default function RegisterScreen() {
     if (!isValid) return;
 
     try {
-      setLoading(true); // ✅ Step 4
+      setLoading(true); 
 
       const response = await registerUser({
   fullName: form.fullName,
