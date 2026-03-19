@@ -3,7 +3,7 @@ import { getRequest, postRequest } from "./api";
 // Register
 export const registerUser = async (data) => {
   try {
-    const response = await postRequest("/users", data);
+    const response = await postRequest("users", data);
 
     return {
       success: true,
@@ -18,7 +18,7 @@ export const registerUser = async (data) => {
 // Login
 export const loginUser = async ({ email, password }) => {
   try {
-    const users = await getRequest("/users");
+    const users = await getRequest("users");
 
     const user = users.find(
       (u) =>
