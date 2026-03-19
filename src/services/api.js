@@ -7,12 +7,12 @@ const BASE_URL =
   API_TYPE === "mock"
     ? process.env.REACT_APP_MOCK_API
     : process.env.REACT_APP_REAL_API;
-
+//Used for debugging
 console.log("API TYPE:", API_TYPE);
 console.log("BASE URL:", BASE_URL);
 console.log("REAL API:", process.env.REACT_APP_REAL_API);
 console.log("MOCK API:", process.env.REACT_APP_MOCK_API);
-// Create axios instance
+// Create axios instance    central API client
 const api = axios.create({
   baseURL: BASE_URL,
   timeout: 10000,
@@ -21,7 +21,7 @@ const api = axios.create({
   },
 });
 
-// Request interceptor (for future token support)
+// Request interceptor (for future token support) before API call
 api.interceptors.request.use(
   (config) => {
     // Example: attach token if available
@@ -30,7 +30,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor (centralized error handling)
+// Response interceptor (centralized error handling)  after API response
 api.interceptors.response.use(
   (response) => response,
   (error) => {
