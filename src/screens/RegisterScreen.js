@@ -62,6 +62,30 @@ export default function RegisterScreen() {
       if (value.length > 10) return;
     }
 
+    if (name === "govIdNumber") {
+
+  // Convert to uppercase
+  value = value.toUpperCase();
+
+  // Aadhaar → only digits, max 12
+  if (form.govIdType === "aadhaar") {
+    value = value.replace(/\D/g, ""); // remove non-digits
+    if (value.length > 12) return;
+  }
+
+  // PAN → alphanumeric, max 10
+  else if (form.govIdType === "pan") {
+    value = value.replace(/[^A-Z0-9]/g, ""); // allow only A-Z, 0-9
+    if (value.length > 10) return;
+  }
+
+  // Voter → alphanumeric, max 10
+  else if (form.govIdType === "voter") {
+    value = value.replace(/[^A-Z0-9]/g, "");
+    if (value.length > 10) return;
+  }
+}
+
     setForm((prev) => ({ ...prev, [name]: value }));
 
     let error = "";
@@ -98,8 +122,32 @@ export default function RegisterScreen() {
         break;
 
       case "govIdNumber":
-        if (!value) error = "Government ID number is required";
-        break;
+  if (!value) {
+    error = "Government ID number is required";
+  } else {
+    if (form.govIdType === "aadhaar") {
+      if (!/^\d{12}$/.test(value)) {
+        error = "Aadhaar must be 12 digits";
+      }
+    }
+
+    else if (form.govIdType === "pan") {
+      if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(value.toUpperCase())) {
+        error = "PAN format: ABCDE1234F";
+      }
+    }
+
+    else if (form.govIdType === "voter") {
+      if (!/^[A-Z]{3}[0-9]{7}$/.test(value.toUpperCase())) {
+        error = "Voter ID format: ABC1234567";
+      }
+    }
+
+    else {
+      error = "Select valid ID type first";
+    }
+  }
+  break;
 
       case "password":
         if (!value) error = "Password is required";
@@ -158,8 +206,25 @@ export default function RegisterScreen() {
     if (!form.govIdType)
       newErrors.govIdType = "Please select Government ID type";
 
-    if (!form.govIdNumber)
-      newErrors.govIdNumber = "Government ID number is required";
+    if (!form.govIdNumber) {
+  newErrors.govIdNumber = "Government ID number is required";
+} else {
+  if (form.govIdType === "aadhaar") {
+    if (!/^\d{12}$/.test(form.govIdNumber)) {
+      newErrors.govIdNumber = "Aadhaar must be 12 digits";
+    }
+  } 
+  else if (form.govIdType === "pan") {
+    if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(form.govIdNumber)) {
+      newErrors.govIdNumber = "PAN must be like ABCDE1234F";
+    }
+  } 
+  else if (form.govIdType === "voter") {
+    if (!/^[A-Z]{3}[0-9]{7}$/.test(form.govIdNumber)) {
+      newErrors.govIdNumber = "Voter ID must be like ABC1234567";
+    }
+  }
+}
 
     if (!form.password) newErrors.password = "Password is required";
     else if (form.password.length < 6)
@@ -255,7 +320,19 @@ export default function RegisterScreen() {
         )}
       </div>
 
-      <FormInput label="Enter ID Number *" name="govIdNumber" value={form.govIdNumber} onChange={handleChange} onBlur={handleBlur} error={errors.govIdNumber} />
+      <FormInput
+  label="Enter ID Number *"
+  name="govIdNumber"
+  value={form.govIdNumber}
+  onChange={handleChange}
+  onBlur={handleBlur}
+  error={errors.govIdNumber}
+  maxLength={
+    form.govIdType === "aadhaar" ? 12 :
+    form.govIdType === "pan" ? 10 :
+    form.govIdType === "voter" ? 10 : 12
+  }
+/>
       <FormInput label="Password *" name="password" type="password" value={form.password} onChange={handleChange} onBlur={handleBlur} error={errors.password} />
       <FormInput label="Confirm Password *" name="confirmPassword" type="password" value={form.confirmPassword} onChange={handleChange} onBlur={handleBlur} error={errors.confirmPassword} />
 

@@ -5,7 +5,8 @@ import { submitKYC, verifyOTP, saveKYC } from "../services/kycService";
 export default function KYCScreen() {
   const navigate = useNavigate();
 
-  const [govId, setGovId] = useState("");
+  const [govIdType, setGovIdType] = useState("");
+const [govIdNumber, setGovIdNumber] = useState("");
   const [enteredOtp, setEnteredOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
@@ -15,6 +16,7 @@ export default function KYCScreen() {
   const [loading, setLoading] = useState(false);
   const [cameraOn, setCameraOn] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [govIdError, setGovIdError] = useState("");
 
   const [message, setMessage] = useState(""); //  added for temporary messages
 
@@ -22,16 +24,58 @@ export default function KYCScreen() {
   const canvasRef = useRef(null);
   const selfieInputRef = useRef(null);
 
+ // ================= Gov id change =================
+const handleGovIdChange = (value) => {
+
+  let error = "";
+
+  // Remove spaces
+  value = value.trim();
+
+  if (govIdType === "aadhaar") {
+    value = value.replace(/\D/g, ""); // only numbers
+
+    if (value.length > 12) return;
+
+    if (value && value.length !== 12) {
+      error = "Aadhaar must be 12 digits";
+    }
+  }
+
+  if (govIdType === "pan") {
+    value = value.toUpperCase();
+
+    if (value.length > 10) return;
+
+    if (value && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(value)) {
+      error = "PAN format: ABCDE1234F";
+    }
+  }
+
+  if (govIdType === "voter") {
+    value = value.toUpperCase();
+
+    if (value.length > 10) return;
+
+    if (value && !/^[A-Z0-9]{10}$/.test(value)) {
+      error = "Voter ID must be 10 alphanumeric characters";
+    }
+  }
+
+  setGovIdNumber(value);
+  setGovIdError(error);
+};
+
   // ================= OTP GENERATION =================
 const handleGenerateOtp = async () => {
-  if (!govId) {
+  if (!govIdNumber) {
     setMessage("Please enter Aadhaar / PAN number");
     setTimeout(() => setMessage(""), 3000);
     return;
   }
 
   try {
-    const response = await submitKYC({ govId });
+    const response = await submitKYC({ govIdNumber });
 
     setOtpSent(true);
 
@@ -203,6 +247,25 @@ const handleGenerateOtp = async () => {
 
   // ================= FINAL SUBMIT =================
   const handleFinalSubmit = async () => {
+    if (!govIdType) {
+  alert("Select Government ID Type");
+  return;
+}
+
+if (!govIdNumber) {
+  alert("Enter Government ID Number");
+  return;
+}
+
+if (govIdType === "aadhaar" && govIdNumber.length !== 12) {
+  alert("Aadhaar must be 12 digits");
+  return;
+}
+
+if (govIdType === "pan" && govIdNumber.length !== 10) {
+  alert("PAN must be 10 characters");
+  return;
+}
   if (!documentFile || !selfie) {
     window.alert("Upload document and capture selfie");
     return;
@@ -226,7 +289,8 @@ const handleGenerateOtp = async () => {
 
     await saveKYC({
       userId: 1,
-      govId
+      govIdType,
+  govIdNumber
     });
 
     setStatus("Approved");
@@ -279,19 +343,44 @@ const getStatusColor = () => {
         </p>
       )}
 
+      <select
+  value={govIdType}
+  onChange={(e) => {
+    setGovIdType(e.target.value);
+    setGovIdNumber(""); // reset input when type changes
+  }}
+  style={{
+    width: "85%",
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 10,
+  }}
+>
+  <option value="">Select Government ID Type</option>
+  <option value="aadhaar">Aadhaar</option>
+  <option value="pan">PAN</option>
+  <option value="voter">Voter ID</option>
+</select>
+
       <input
-        type="text"
-        placeholder="Enter Aadhaar / PAN"
-        value={govId}
-        onChange={(e) => setGovId(e.target.value)}
-        style={{
-          width: "85%",
-          padding: 10,
-          borderRadius: 8,
-          border: "1px solid #ccc",
-          marginBottom: 10,
-        }}
-      />
+  type="text"
+  placeholder="Enter ID Number"
+  value={govIdNumber}
+  onChange={(e) => handleGovIdChange(e.target.value)}
+  style={{
+    width: "85%",
+    padding: 10,
+    borderRadius: 8,
+    border: govIdError ? "1px solid red" : "1px solid #ccc",
+    marginBottom: 10,
+  }}
+/>
+
+{govIdError && (
+  <p style={{ color: "red", fontSize: 12 }}>
+    {govIdError}
+  </p>
+)}
 
       {!otpSent && (
         <button

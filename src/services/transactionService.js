@@ -1,13 +1,10 @@
-import axios from "axios";
+import { getRequest } from "./api";
 
-const API_URL = "http://localhost:3000/transactions";
-
-// Fetch all transactions
 export const getTransactions = async () => {
   try {
-    const response = await axios.get(API_URL);
-    return response.data;
+    const data = await getRequest("/transactions");
+    return data;
   } catch (error) {
-    throw new Error("Failed to fetch transactions");
+    throw new Error(error.message || "Failed to fetch transactions");
   }
 };

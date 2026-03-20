@@ -1,37 +1,20 @@
-// ================= MOCK WALLET DATABASE =================
-const wallets = [
-  {
-    email: "test@mail.com",
-    phone: "9876543210",
-    walletId: "WLT-894739",
-    userReference: "USER-001",
-    walletAddress: "0x9a34Fbc89012345",
-    balance: 5200,
-  },
-  {
-    email: "demo@mail.com",
-    phone: "9123456789",
-    walletId: "WLT-456123",
-    userReference: "USER-002",
-    walletAddress: "0x7f22Abc90123456",
-    balance: 3100,
-  },
-];
+import { getRequest } from "./api";
 
 // ================= WALLET LOOKUP =================
-export const lookupWallet = async (query) => {
-  if (!query) {
-    throw new Error("Phone or Email is required");
-  }
-
+export const lookupWallet = async (searchValue) => {
   try {
-    // simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    if (!searchValue) {
+      throw new Error("Email or phone is required");
+    }
 
+    // 🔥 Fetch all wallets from API
+    const wallets = await getRequest("/wallets");
+
+    // 🔍 Find matching wallet (email OR phone)
     const wallet = wallets.find(
       (w) =>
-        w.email.toLowerCase() === query.toLowerCase() ||
-        w.phone === query
+        w.email?.toLowerCase() === searchValue.toLowerCase() ||
+        w.phone === searchValue
     );
 
     if (!wallet) {
@@ -42,6 +25,7 @@ export const lookupWallet = async (query) => {
       success: true,
       data: wallet,
     };
+
   } catch (error) {
     throw new Error(error.message || "Wallet lookup failed");
   }

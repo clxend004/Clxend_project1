@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import { lookupWallet } from "../services/walletService";
-import TransactionCard from "../components/TransactionCard";
-import { getTransactions } from "../services/transactionService";
+import { useNavigate } from "react-router-dom";
 
 export default function WalletLookupScreen() {
+  const navigate = useNavigate();
+
   const [searchValue, setSearchValue] = useState("");
   const [walletData, setWalletData] = useState(null);
-  const [transactions, setTransactions] = useState([]);
-  const [showTransactions, setShowTransactions] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -21,7 +20,6 @@ export default function WalletLookupScreen() {
     setLoading(true);
     setError("");
     setWalletData(null);
-    setShowTransactions(false);
 
     try {
       const response = await lookupWallet(searchValue);
@@ -38,15 +36,9 @@ export default function WalletLookupScreen() {
     setLoading(false);
   };
 
-  // ================= LOAD TRANSACTIONS =================
-  const handleViewTransactions = async () => {
-    try {
-      const data = await getTransactions();
-      setTransactions(data);
-      setShowTransactions(true);
-    } catch (error) {
-      console.error("Transaction fetch error:", error);
-    }
+  // ================= NAVIGATE TO TRANSACTIONS =================
+  const handleViewTransactions = () => {
+    navigate("/transactions"); // route to transaction screen
   };
 
   // ================= RETRY =================
@@ -155,37 +147,23 @@ export default function WalletLookupScreen() {
                 Wallet Details
               </p>
 
-              <p>
-                <strong>Email:</strong> {walletData.email}
-              </p>
+              <p><strong>Email:</strong> {walletData.email}</p>
+              <p><strong>Phone:</strong> {walletData.phone}</p>
+              <p><strong>Wallet ID:</strong> {walletData.walletId}</p>
+              <p><strong>User Reference:</strong> {walletData.userReference}</p>
+              <p><strong>Wallet Address:</strong> {walletData.walletAddress}</p>
+              <p><strong>Balance:</strong> ₹{walletData.balance}</p>
+            </div>
 
-              <p>
-                <strong>Phone:</strong> {walletData.phone}
-              </p>
-
-              <p>
-                <strong>Wallet ID:</strong> {walletData.walletId}
-              </p>
-
-              <p>
-                <strong>User Reference:</strong> {walletData.userReference}
-              </p>
-
-              <p>
-                <strong>Wallet Address:</strong> {walletData.walletAddress}
-              </p>
-
-              <p>
-                <strong>Balance:</strong> ₹{walletData.balance}
-              </p>
-
-              {/* VIEW TRANSACTIONS BUTTON */}
+            {/* CENTERED BIG BUTTON */}
+            <div style={{ textAlign: "center", marginTop: 30 }}>
               <button
                 onClick={handleViewTransactions}
                 style={{
-                  marginTop: 15,
-                  padding: 10,
-                  borderRadius: 8,
+                  padding: "15px 40px",
+                  fontSize: 18,
+                  fontWeight: "bold",
+                  borderRadius: 10,
                   backgroundColor: "#2196F3",
                   color: "#fff",
                   border: "none",
@@ -195,21 +173,6 @@ export default function WalletLookupScreen() {
                 View Transactions
               </button>
             </div>
-
-            {/* TRANSACTION HISTORY */}
-            {showTransactions && (
-              <div style={{ marginTop: 30, textAlign: "left" }}>
-                <h3>Transaction History</h3>
-
-                {transactions.length === 0 && (
-                  <p>No transactions found</p>
-                )}
-
-                {transactions.map((tx) => (
-                  <TransactionCard key={tx.id} tx={tx} />
-                ))}
-              </div>
-            )}
           </>
         )}
       </div>
