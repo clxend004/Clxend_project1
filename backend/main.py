@@ -16,6 +16,10 @@ from jose import JWTError, ExpiredSignatureError
 Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
+@app.get("/")
+def home():
+    return {"message": "FastAPI backend is running"}
+
 # ================= CORS =================
 app.add_middleware(
     CORSMiddleware,
