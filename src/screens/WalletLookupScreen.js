@@ -1,181 +1,236 @@
-import React, { useState } from "react";
-import { lookupWallet } from "../services/walletService";
+import React, { useState, useEffect } from "react";
+import AppLayout from "../components/AppLayout";
 import { useNavigate } from "react-router-dom";
+import BackgroundWrapper from "../components/BackgroundWrapper";
+import { getWallet } from "../services/walletService";
 
 export default function WalletLookupScreen() {
   const navigate = useNavigate();
 
-  const [searchValue, setSearchValue] = useState("");
-  const [walletData, setWalletData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [walletData, setWalletData] = useState(null);
 
-  // ================= SEARCH HANDLER =================
-  const handleSearch = async () => {
-    if (!searchValue) {
-      setError("Enter phone number or email id");
-      return;
-    }
+  // ✅ LOAD USER WALLET AUTOMATICALLY
+  useEffect(() => {
+    const loadWallet = async () => {
+      try {
+        setLoading(true);
 
-    setLoading(true);
-    setError("");
-    setWalletData(null);
+        // ✅ Fetch wallet from backend
+        const data = await getWallet();
 
-    try {
-      const response = await lookupWallet(searchValue);
+        // ✅ Direct backend mapping
+        setWalletData({
+          email: data.email,
+          phone: data.phone,
+          walletId: data.walletId,
+          userReference: `USER-${data.userId}`,
+          walletAddress: data.walletAddress,
+          balance: data.balance,
+          did: data.did,
+          blockchain: data.blockchain,
+          txHash: data.txHash,
+          identityStatus: data.identityStatus,
+        });
 
-      if (response.success) {
-        setWalletData(response.data);
-      } else {
-        setError("No wallet found");
+      } catch (err) {
+        setError(err.message || "Failed to load wallet");
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      setError(err.message || "Something went wrong");
-    }
+    };
 
-    setLoading(false);
-  };
+    loadWallet();
+  }, []);
 
-  // ================= NAVIGATE TO TRANSACTIONS =================
+  // ================= NAVIGATION =================
   const handleViewTransactions = () => {
-    navigate("/transactions"); // route to transaction screen
+    navigate("/transactions");
   };
 
-  // ================= RETRY =================
   const handleRetry = () => {
-    setError("");
-    handleSearch();
+    window.location.reload();
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        minHeight: "100vh",
-        backgroundColor: "#f2f2f2",
-        padding: 20,
-      }}
-    >
-      <div
-        style={{
-          width: "85%",
-          backgroundColor: "#fff",
-          padding: 20,
-          borderRadius: 12,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-          textAlign: "center",
-        }}
-      >
-        <h2 style={{ fontSize: 22, fontWeight: "bold", marginBottom: 20 }}>
-          Wallet Lookup
-        </h2>
-
-        {/* INPUT */}
-        <input
-          type="text"
-          placeholder="Enter Phone / Email"
-          value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
+    <BackgroundWrapper>
+      <AppLayout>
+        <div
           style={{
-            width: "65%",
-            padding: 12,
-            borderRadius: 8,
-            border: "1px solid #ccc",
-            marginBottom: 15,
-          }}
-        />
-
-        {/* SEARCH BUTTON */}
-        <button
-          onClick={handleSearch}
-          disabled={loading}
-          style={{
-            width: "60%",
-            padding: 12,
-            borderRadius: 8,
-            backgroundColor: "#4CAF50",
-            color: "#fff",
-            fontWeight: "bold",
-            fontSize: 16,
-            cursor: "pointer",
-            marginBottom: 10,
+            width: "100%",
+            maxWidth: "450px",
+            margin: "0 auto",
+            marginTop: "40px",
           }}
         >
-          {loading ? "Searching..." : "Search Wallet"}
-        </button>
+          <h2 style={{ marginBottom: 20 }}>My Wallet</h2>
 
-        {/* LOADING */}
-        {loading && <p style={{ marginTop: 20 }}>Loading wallet details...</p>}
+          {/* LOADING */}
+          {loading && (
+            <p style={{ marginTop: 10 }}>
+              Fetching your wallet...
+            </p>
+          )}
 
-        {/* ERROR */}
-        {error && (
-          <div style={{ marginTop: 15 }}>
-            <p style={{ color: "red" }}>{error}</p>
+          {/* ERROR */}
+          {error && (
+            <div style={{ marginTop: 10 }}>
+              <p style={{ color: "red" }}>{error}</p>
 
-            <button
-              onClick={handleRetry}
-              style={{
-                marginTop: 10,
-                padding: 8,
-                borderRadius: 6,
-                backgroundColor: "#ff9800",
-                color: "#fff",
-                cursor: "pointer",
-              }}
-            >
-              Retry
-            </button>
-          </div>
-        )}
-
-        {/* WALLET DETAILS */}
-        {walletData && (
-          <>
-            <div
-              style={{
-                width: "100%",
-                marginTop: 20,
-                padding: 15,
-                borderRadius: 10,
-                backgroundColor: "#f1f1f1",
-                textAlign: "left",
-              }}
-            >
-              <p style={{ fontSize: 18, fontWeight: "bold", marginBottom: 10 }}>
-                Wallet Details
-              </p>
-
-              <p><strong>Email:</strong> {walletData.email}</p>
-              <p><strong>Phone:</strong> {walletData.phone}</p>
-              <p><strong>Wallet ID:</strong> {walletData.walletId}</p>
-              <p><strong>User Reference:</strong> {walletData.userReference}</p>
-              <p><strong>Wallet Address:</strong> {walletData.walletAddress}</p>
-              <p><strong>Balance:</strong> ₹{walletData.balance}</p>
-            </div>
-
-            {/* CENTERED BIG BUTTON */}
-            <div style={{ textAlign: "center", marginTop: 30 }}>
-              <button
-                onClick={handleViewTransactions}
-                style={{
-                  padding: "15px 40px",
-                  fontSize: 18,
-                  fontWeight: "bold",
-                  borderRadius: 10,
-                  backgroundColor: "#2196F3",
-                  color: "#fff",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                View Transactions
+              <button className="btn" onClick={handleRetry}>
+                Retry
               </button>
             </div>
-          </>
-        )}
-      </div>
-    </div>
+          )}
+
+          {/* WALLET DETAILS */}
+          {walletData && (
+            <>
+              <div
+                style={{
+                  marginTop: 20,
+                  padding: 20,
+                  borderRadius: 16,
+                  background: "rgba(255,255,255,0.6)",
+                  backdropFilter: "blur(12px)",
+                  textAlign: "left",
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
+                }}
+              >
+                <p>
+                  <strong>Email:</strong> {walletData.email}
+                </p>
+
+                <p>
+                  <strong>Phone:</strong> {walletData.phone}
+                </p>
+
+                <p>
+                  <strong>Wallet ID:</strong> {walletData.walletId}
+                </p>
+
+                <p>
+                  <strong>User Ref:</strong> {walletData.userReference}
+                </p>
+
+                <p>
+                  <strong>Wallet Address:</strong>
+                  <br />
+                  <span
+                    style={{
+                      fontSize: 13,
+                      wordBreak: "break-all",
+                    }}
+                  >
+                    {walletData.walletAddress}
+                  </span>
+                </p>
+
+                <p>
+                  <strong>Balance:</strong> ₹{walletData.balance}
+                </p>
+
+                <p>
+                  <strong>DID:</strong>
+                  <br />
+                  <span
+                    style={{
+                      fontSize: 13,
+                      wordBreak: "break-all",
+                    }}
+                  >
+                    {walletData.did}
+                  </span>
+                </p>
+
+                <p>
+                  <strong>Blockchain:</strong> {walletData.blockchain}
+                </p>
+
+                <p>
+                  <strong>Transaction Hash:</strong>
+                  <br />
+                  <a
+                    href={`https://polygonscan.com/tx/${walletData.txHash}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{
+                      fontSize: 13,
+                      wordBreak: "break-all",
+                    }}
+                  >
+                    {walletData.txHash}
+                  </a>
+                </p>
+
+                <p>
+                  <strong>Identity Status:</strong>{" "}
+                  {walletData.identityStatus === "verified"
+                    ? "🟢 VERIFIED"
+                    : "🟡 PENDING"}
+                </p>
+
+                {/* ✅ VERIFIED BADGE */}
+                {walletData.identityStatus === "verified" && (
+                  <div
+                    style={{
+                      marginTop: 12,
+                      padding: "8px 12px",
+                      background: "#e8fff3",
+                      color: "#0f9d58",
+                      borderRadius: 8,
+                      fontSize: 14,
+                      fontWeight: "bold",
+                      textAlign: "center",
+                    }}
+                  >
+                    ✅ Verified on Blockchain
+                  </div>
+                )}
+
+                {/* ❌ NO DID */}
+                {!walletData.did && (
+                  <p style={{ color: "red", marginTop: 10 }}>
+                    No DID found for this wallet
+                  </p>
+                )}
+              </div>
+
+              {/* ACTION BUTTONS */}
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 12,
+                  marginTop: 20,
+                }}
+              >
+                <button
+                  onClick={handleViewTransactions}
+                  className="btn"
+                >
+                  View Transactions
+                </button>
+
+                <button
+                  className="btn"
+                  onClick={() => navigate("/send")}
+                >
+                  Send
+                </button>
+
+                <button
+                  className="btn"
+                  onClick={() => navigate("/receive")}
+                >
+                  Receive
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </AppLayout>
+    </BackgroundWrapper>
   );
 }

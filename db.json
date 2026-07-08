@@ -15,6 +15,18 @@
       "govIdType": "aadhaar",
       "govIdNumber": "123412341234",
       "password": "123456"
+    },
+    {
+      "id": "f430",
+      "fullName": "San",
+      "email": "vimali@gmail.com",
+      "mobile": "9876543210",
+      "dob": "1996-07-05",
+      "address": "New Road, Chennai",
+      "govIdType": "aadhaar",
+      "govIdNumber": "123456789012",
+      "password": "Sv@123",
+      "confirmPassword": "Sv@123"
     }
   ],
   "kyc": [
@@ -44,6 +56,35 @@
     {
       "id": "e4d1",
       "userId": 1,
+      "status": "Pending"
+    },
+    {
+      "id": "8d7c",
+      "userId": 1,
+      "status": "Pending"
+    },
+    {
+      "id": "68c6",
+      "userId": 1,
+      "govId": "123456789012",
+      "status": "Pending"
+    },
+    {
+      "id": "ef66",
+      "userId": 1,
+      "govId": "123456789012",
+      "status": "Pending"
+    },
+    {
+      "id": "9009",
+      "userId": 1,
+      "govId": "123456789012",
+      "status": "Pending"
+    },
+    {
+      "id": "13c8",
+      "userId": 1,
+      "govId": "123456789012",
       "status": "Pending"
     }
   ],

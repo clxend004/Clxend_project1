@@ -1,58 +1,75 @@
 import axios from "axios";
 
-// Use environment variable for React
+// ================= ENV =================
 const API_TYPE = process.env.REACT_APP_API_TYPE;
 
+// ✅ FIXED LOGIC (REAL → REAL API, MOCK → MOCK API)
 const BASE_URL =
-  API_TYPE === "mock"
-    ? process.env.REACT_APP_MOCK_API
-    : process.env.REACT_APP_REAL_API;
-//Used for debugging
+  API_TYPE === "real"
+    ? process.env.REACT_APP_REAL_API
+    : process.env.REACT_APP_MOCK_API;
+
+// ================= DEBUG =================
 console.log("API TYPE:", API_TYPE);
 console.log("BASE URL:", BASE_URL);
-console.log("REAL API:", process.env.REACT_APP_REAL_API);
-console.log("MOCK API:", process.env.REACT_APP_MOCK_API);
-// Create axios instance    central API client
+
+// ================= AXIOS INSTANCE =================
 const api = axios.create({
   baseURL: BASE_URL,
   timeout: 10000,
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
-// Request interceptor (for future token support) before API call
+// ================= REQUEST INTERCEPTOR =================
 api.interceptors.request.use(
   (config) => {
-    // Example: attach token if available
+
+    const token = localStorage.getItem("token");
+
+    // ✅ ADD TOKEN HEADER
+    if (token) {
+      config.headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    if (!(config.data instanceof FormData)) {
+      config.headers["Content-Type"] = "application/json";
+    }
+
     return config;
   },
   (error) => Promise.reject(error)
 );
-
-// Response interceptor (centralized error handling)  after API response
+// ================= RESPONSE INTERCEPTOR =================
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    const structuredError = {
-      success: false,
-      message:
-        error.response?.data?.message ||
-        error.message ||
-        "Something went wrong",
-      status: error.response?.status || 500,
-    };
-    return Promise.reject(structuredError);
+    const status = error.response?.status;
+
+    if (status === 401) {
+      // 🔐 Token expired or invalid
+      localStorage.removeItem("token");
+
+      // Redirect to login
+      window.location.href = "/login";
+    }
+
+    return Promise.reject({
+  message:
+    error?.response?.data?.detail ||
+    error?.response?.data?.message ||
+    error?.message ||
+    "Something went wrong",
+  status: status || 500,
+});
   }
 );
 
-// Reusable GET method
+// ================= GET =================
 export const getRequest = async (url, params = {}) => {
   const response = await api.get(url, { params });
   return response.data;
 };
 
-// Reusable POST method
+// ================= POST =================
 export const postRequest = async (url, data = {}) => {
   const response = await api.post(url, data);
   return response.data;

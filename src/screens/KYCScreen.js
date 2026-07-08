@@ -1,12 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
+import AppLayout from "../components/AppLayout";
 import { useNavigate } from "react-router-dom";
-import { submitKYC, verifyOTP, saveKYC } from "../services/kycService";
+import { generateOTP, verifyOTP, saveKYC } from "../services/kycService";
+import BackgroundWrapper from "../components/BackgroundWrapper";
 
 export default function KYCScreen() {
   const navigate = useNavigate();
 
   const [govIdType, setGovIdType] = useState("");
-const [govIdNumber, setGovIdNumber] = useState("");
+  const [govIdNumber, setGovIdNumber] = useState("");
   const [enteredOtp, setEnteredOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
@@ -18,8 +20,8 @@ const [govIdNumber, setGovIdNumber] = useState("");
   const [progress, setProgress] = useState(0);
   const [govIdError, setGovIdError] = useState("");
 
-  const [message, setMessage] = useState(""); //  added for temporary messages
-
+  const [message, setMessage] = useState(""); 
+  const [errorMessage, setErrorMessage] = useState("");
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const selfieInputRef = useRef(null);
@@ -67,39 +69,49 @@ const handleGovIdChange = (value) => {
 };
 
   // ================= OTP GENERATION =================
-const handleGenerateOtp = async () => {
+const handleGenerateOTP = async () => {
+  if (!govIdType) {
+    alert("Select Government ID Type");
+    return;
+  }
+
   if (!govIdNumber) {
-    setMessage("Please enter Aadhaar / PAN number");
-    setTimeout(() => setMessage(""), 3000);
+    alert("Enter Government ID Number");
+    return;
+  }
+
+  if (govIdError) {
+    alert("Fix ID errors first");
     return;
   }
 
   try {
-    const response = await submitKYC({ govIdNumber });
-
-    setOtpSent(true);
-
+    const response = await generateOTP();
     console.log("Generated OTP:", response.otp);
-
-    setMessage("OTP generated! Check console.");
-    setTimeout(() => setMessage(""), 3000);
+    setOtpSent(true);
   } catch (error) {
-    setMessage("Failed to generate OTP");
-    setTimeout(() => setMessage(""), 3000);
+    console.error("OTP Error:", error);
   }
 };
   // ================= OTP VERIFY =================
   const handleVerifyOtp = async () => {
+  // ✅ check empty
+  if (!enteredOtp) {
+    setErrorMessage("Enter OTP");
+    return;
+  }
+
   try {
     await verifyOTP(enteredOtp);
 
     setOtpVerified(true);
-    setMessage("OTP Verified Successfully");
 
-    setTimeout(() => setMessage(""), 3000);
+    setMessage("OTP Verified Successfully ✅");
+    setErrorMessage(""); // clear error
+
   } catch (error) {
-    setMessage("Invalid OTP");
-    setTimeout(() => setMessage(""), 3000);
+    setErrorMessage(error.message || "Invalid OTP ❌");
+    setMessage(""); // clear success
   }
 };
 
@@ -287,18 +299,42 @@ if (govIdType === "pan" && govIdNumber.length !== 10) {
         setTimeout(async () => {
   if (otpVerified) {
 
-    await saveKYC({
-      userId: 1,
-      govIdType,
-  govIdNumber
-    });
+  const response = await saveKYC({
+  govId: govIdNumber,
+});
 
-    setStatus("Approved");
+const backendStatus = response.status;
+setStatus(backendStatus);
+localStorage.setItem("kycStatus", backendStatus);
 
-  } else {
-    setStatus("Rejected");
-  }
+  if (backendStatus === "Approved") {
+  navigate("/verification-result");   // or /dashboard
+} else if (backendStatus === "Pending") {
+  // stay here
+  console.log("KYC is pending...");
+} else {
+  console.log("KYC rejected");
+}
 
+// Store data for next screen
+localStorage.setItem("kycResult", JSON.stringify({
+  status: "verified",
+  faceMatchScore: 85,
+  liveness: true,
+  selfie: selfie,
+  ocrData: {
+    name: "Vimalashwari",
+    idNumber: govIdNumber,
+  },
+}));
+
+} else {
+
+  setStatus("Rejected");
+
+  // ✅ ADD THIS LINE (IMPORTANT)
+  localStorage.setItem("kycStatus", "Rejected");
+}
   setLoading(false);
 }, 500);
       }
@@ -318,85 +354,83 @@ const getStatusColor = () => {
   return "black";
 };
 
-  return (
-    <div
-      style={{
-        padding: 20,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        minHeight: "100vh",
-        backgroundColor: "#fff",
-      }}
-    >
-      <h2 style={{ marginBottom: 20 }}>KYC Verification</h2>
+ return (
+  <BackgroundWrapper>
+  <AppLayout>
+     <div style={styles.wrapper}>
+    <div style={styles.card}>
 
-      {/* ⭐ Temporary Message */}
+      <h2 style={styles.title}>KYC Verification</h2>
+
+      {/* Message */}
       {message && (
-        <p
-          style={{
-            marginBottom: 10,
-            fontWeight: "bold",
-          }}
-        >
-          {message}
-        </p>
-      )}
-
-      <select
-  value={govIdType}
-  onChange={(e) => {
-    setGovIdType(e.target.value);
-    setGovIdNumber(""); // reset input when type changes
-  }}
-  style={{
-    width: "85%",
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 10,
-  }}
->
-  <option value="">Select Government ID Type</option>
-  <option value="aadhaar">Aadhaar</option>
-  <option value="pan">PAN</option>
-  <option value="voter">Voter ID</option>
-</select>
-
-      <input
-  type="text"
-  placeholder="Enter ID Number"
-  value={govIdNumber}
-  onChange={(e) => handleGovIdChange(e.target.value)}
-  style={{
-    width: "85%",
-    padding: 10,
-    borderRadius: 8,
-    border: govIdError ? "1px solid red" : "1px solid #ccc",
-    marginBottom: 10,
-  }}
-/>
-
-{govIdError && (
-  <p style={{ color: "red", fontSize: 12 }}>
-    {govIdError}
+  <p style={{ color: "green", marginBottom: 10, fontWeight: "bold" }}>
+    {message}
   </p>
 )}
 
+{errorMessage && (
+  <p style={{ color: "red", marginBottom: 10, fontWeight: "bold" }}>
+    {errorMessage}
+  </p>
+)}
+
+      {/* ID TYPE */}
+      <select
+        value={govIdType}
+        onChange={(e) => {
+          setGovIdType(e.target.value);
+          setGovIdNumber("");
+        }}
+        style={{
+          width: "100%",
+          padding: 10,
+          borderRadius: 10,
+          marginBottom: 10,
+          background: "rgba(255,255,255,0.6)",
+          border: "none",
+        }}
+      >
+        <option value="">Select Government ID Type</option>
+        <option value="aadhaar">Aadhaar</option>
+        <option value="pan">PAN</option>
+        <option value="voter">Voter ID</option>
+      </select>
+
+      {/* ID INPUT */}
+      <input
+        type="text"
+        placeholder="Enter ID Number"
+        value={govIdNumber}
+        onChange={(e) => handleGovIdChange(e.target.value)}
+        style={{
+          width: "100%",
+          padding: 10,
+          borderRadius: 10,
+          border: govIdError
+            ? "1px solid red"
+            : "none",
+          background: "rgba(255,255,255,0.6)",
+          marginBottom: 10,
+        }}
+      />
+      <input
+         type="file"
+         accept="image/jpeg,image/png"
+         ref={selfieInputRef}
+         onChange={handleSelfieUpload}
+         style={{ display: "none" }}
+       />
+
+      {govIdError && (
+        <p style={{ color: "red", fontSize: 12 }}>
+          {govIdError}
+        </p>
+      )}
+
+      {/* OTP */}
       {!otpSent && (
-        <button
-          onClick={handleGenerateOtp}
-          style={{
-            width: "85%",
-            padding: 12,
-            borderRadius: 8,
-            backgroundColor: "#4CAF50",
-            color: "#fff",
-            fontWeight: "bold",
-            fontSize: 16,
-            cursor: "pointer",
-            marginBottom: 10,
-          }}
-        >
+        <button className="btn" onClick={handleGenerateOTP}>
           Generate OTP
         </button>
       )}
@@ -407,51 +441,32 @@ const getStatusColor = () => {
             type="number"
             placeholder="Enter OTP"
             value={enteredOtp}
-            onChange={(e) => setEnteredOtp(e.target.value)}
+            onChange={(e) => {
+  setEnteredOtp(e.target.value);
+  setErrorMessage(""); // clear error while typing
+}}
             style={{
-              width: "85%",
+              width: "100%",
               padding: 10,
-              borderRadius: 8,
-              border: "1px solid #ccc",
+              borderRadius: 10,
+              background: "rgba(255,255,255,0.6)",
+              border: "none",
               marginBottom: 10,
             }}
           />
-          <button
-            onClick={handleVerifyOtp}
-            style={{
-              width: "85%",
-              padding: 12,
-              borderRadius: 8,
-              backgroundColor: "#4CAF50",
-              color: "#fff",
-              fontWeight: "bold",
-              fontSize: 16,
-              cursor: "pointer",
-              marginBottom: 10,
-            }}
-          >
+
+          <button className="btn" onClick={handleVerifyOtp}>
             Verify OTP
           </button>
         </>
       )}
 
+      {/* AFTER OTP */}
       {otpVerified && (
         <>
-          <label
-            style={{
-              width: "85%",
-              display: "block",
-              marginBottom: 10,
-              cursor: "pointer",
-              textAlign: "center",
-              backgroundColor: "#4CAF50",
-              padding: 12,
-              color: "#fff",
-              borderRadius: 8,
-              fontWeight: "bold",
-            }}
-          >
-            {documentFile ? "Change Document" : "Upload ID Document"}
+          {/* Upload */}
+          <label style={styles.primaryBtn}>
+            {documentFile ? "Change Document" : "Upload Document"}
             <input
               type="file"
               accept=".pdf,image/jpeg,image/png"
@@ -460,153 +475,66 @@ const getStatusColor = () => {
             />
           </label>
 
-          {documentFile && (
-            <p style={{ marginBottom: 10 }}>
-              Uploaded: {documentFile.name}
-            </p>
-          )}
+          {documentFile && <p>{documentFile.name}</p>}
 
+          {/* SELFIE */}
           {!cameraOn && !selfie && (
-            <>
-              <button
-                onClick={handleSelfieOption}
-                style={{
-                  width: "85%",
-                  padding: 12,
-                  borderRadius: 8,
-                  backgroundColor: "#4CAF50",
-                  color: "#fff",
-                  fontWeight: "bold",
-                  fontSize: 16,
-                  cursor: "pointer",
-                  marginBottom: 10,
-                }}
-              >
-                Capture Selfie
-              </button>
-
-              <input
-                ref={selfieInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleSelfieUpload}
-                style={{ display: "none" }}
-              />
-            </>
+            <button style={styles.primaryBtn} onClick={handleSelfieOption}>
+  Capture Selfie
+</button>
           )}
 
           {cameraOn && (
             <>
-              <div
-                style={{
-                  width: 150,
-                  height: 150,
-                  borderRadius: "50%",
-                  overflow: "hidden",
-                  border: "2px solid #4CAF50",
-                  marginTop: 15,
-                }}
-              >
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  muted
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                  }}
-                />
-              </div>
-
-              <button
-                onClick={captureSelfie}
-                style={{
-                  width: "85%",
-                  padding: 12,
-                  borderRadius: 8,
-                  backgroundColor: "#4CAF50",
-                  color: "#fff",
-                  fontWeight: "bold",
-                  fontSize: 16,
-                  cursor: "pointer",
-                  marginTop: 10,
-                }}
-              >
-                Capture Now
-              </button>
+              <video
+                ref={videoRef}
+                autoPlay
+                style={{ width: "100%", borderRadius: 10 }}
+              />
+              <button style={styles.primaryBtn} onClick={captureSelfie}>
+  Capture Now
+</button>
             </>
           )}
 
           <canvas ref={canvasRef} style={{ display: "none" }} />
 
-          {selfie && !cameraOn && (
+          {selfie && (
             <>
               <img
                 src={selfie}
                 alt="Selfie"
                 style={{
-                  width: 150,
-                  height: 150,
+                  width: 120,
                   borderRadius: "50%",
-                  marginTop: 15,
-                  border: "2px solid #4CAF50",
-                  objectFit: "cover",
-                }}
-              />
-              <button
-                onClick={() => {
-                  setSelfie(null);
-                }}
-                style={{
-                  width: "85%",
-                  padding: 12,
-                  borderRadius: 8,
-                  backgroundColor: "#4CAF50",
-                  color: "#fff",
-                  fontWeight: "bold",
-                  fontSize: 16,
-                  cursor: "pointer",
                   marginTop: 10,
                 }}
-              >
-                Retake Selfie
-              </button>
+              />
+              <button style={styles.secondaryBtn} onClick={() => setSelfie(null)}>
+  Retake
+</button>
             </>
           )}
 
           <button
-            onClick={handleFinalSubmit}
-            style={{
-              width: "85%",
-              padding: 12,
-              borderRadius: 8,
-              backgroundColor: "#4CAF50",
-              color: "#fff",
-              fontWeight: "bold",
-              fontSize: 16,
-              cursor: "pointer",
-              marginTop: 10,
-            }}
-          >
-            Submit KYC
-          </button>
+  style={styles.submitBtn}
+  onClick={handleFinalSubmit}
+  disabled={loading}
+>
+  {loading ? "Processing..." : "🚀 Submit KYC"}
+</button>
         </>
       )}
 
-      {loading && (
-  <p style={{ marginTop: 20 }}>
-    Uploading... {progress}%
-  </p>
-)}
+      {/* LOADING */}
+      {loading && <p>Uploading... {progress}%</p>}
 
+      {/* STATUS */}
       {status && (
         <p
           style={{
-            marginTop: 20,
-            fontSize: 18,
             fontWeight: "bold",
+            marginTop: 10,
             color: getStatusColor(),
           }}
         >
@@ -614,24 +542,82 @@ const getStatusColor = () => {
         </p>
       )}
 
-      {status === "Approved" && (
-        <button
-          onClick={() => navigate("/wallet")}
-          style={{
-            width: "85%",
-            padding: 12,
-            borderRadius: 8,
-            backgroundColor: "#4CAF50",
-            color: "#fff",
-            fontWeight: "bold",
-            fontSize: 16,
-            cursor: "pointer",
-            marginTop: 10,
-          }}
-        >
-          Go to Wallet
-        </button>
-      )}
-    </div>
+      </div>
+  </div>
+    </AppLayout>
+  </BackgroundWrapper>
   );
 }
+const styles = {
+  wrapper: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    minHeight: "80vh",
+  },
+
+  card: {
+    width: "100%",
+    maxWidth: "420px",
+    padding: "20px",
+    borderRadius: "16px",
+    background: "rgba(255,255,255,0.9)",
+    boxShadow: "0 8px 25px rgba(0,0,0,0.1)",
+  },
+
+  title: {
+    textAlign: "center",
+    marginBottom: 20,
+    fontSize: 22,
+    fontWeight: "bold",
+  },
+
+  primaryBtn: {
+    width: "100%",
+    padding: "12px",
+    marginBottom: "10px",
+    borderRadius: "10px",
+    border: "none",
+    cursor: "pointer",
+    fontWeight: "bold",
+    fontSize: "16px",        
+    lineHeight: "20px",
+    color: "#fff",
+    background: "linear-gradient(135deg, #43e97b, #38f9d7)",
+    boxSizing: "border-box", 
+  display: "block",        
+  textAlign: "center", 
+  },
+
+  secondaryBtn: {
+    width: "100%",
+    padding: "12px",
+    marginBottom: "10px",
+    borderRadius: "10px",
+    border: "1px solid #ccc",
+    cursor: "pointer",
+    fontWeight: "bold",
+    background: "#fff",
+    color: "#333",
+    boxSizing: "border-box", 
+  display: "block",        
+  textAlign: "center", 
+  },
+
+  submitBtn: {
+    width: "100%",
+    padding: "14px",
+    marginTop: "10px",
+    borderRadius: "12px",
+    border: "none",
+    cursor: "pointer",
+    fontWeight: "bold",
+    fontSize: "20px",
+    color: "#fff",
+    background: "linear-gradient(135deg, #667eea, #764ba2)",
+    boxShadow: "0 6px 20px rgba(0,0,0,0.2)",
+    boxSizing: "border-box", 
+  display: "block",        
+  textAlign: "center", 
+  },
+};

@@ -1,22 +1,24 @@
 import React from "react";
 
-// styling
-const styles = {
-  button: {
-    backgroundColor: "#007BFF",
-    padding: "12px 20px",
-    borderRadius: "8px",
-    color: "#fff",
-    fontWeight: "bold",
-    cursor: "pointer",
-    margin: "5px 0",
-    border: "none",
-  },
-};
-
-export default function CustomButton({ title, onClick }) {
+export default function CustomButton({ title, onClick, disabled }) {
   return (
-    <button style={styles.button} onClick={onClick}>
+    <button
+    type="button"
+      onClick={onClick}
+      disabled={disabled}
+      style={{
+        width: "100%",
+        padding: 12,
+        borderRadius: 10,
+        background: "linear-gradient(135deg, #43e97b, #38f9d7)",
+        color: "#fff",
+        fontWeight: "bold",
+        border: "none",
+        cursor: "pointer",
+        marginTop: 10,
+        opacity: disabled ? 0.6 : 1,
+      }}
+    >
       {title}
     </button>
   );

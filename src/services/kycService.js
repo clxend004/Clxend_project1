@@ -2,67 +2,125 @@ import { postRequest, getRequest } from "./api";
 
 let currentOtp = null;
 
+/* =====================================================
+   🔐 OTP SECTION
+===================================================== */
+
 // Generate OTP
-export const submitKYC = async (data) => {
+export const generateOTP = async () => {
   return new Promise((resolve) => {
     setTimeout(() => {
-
       currentOtp = Math.floor(1000 + Math.random() * 9000).toString();
+
       console.log("Generated OTP:", currentOtp);
 
       resolve({
-        message: "OTP Sent",
-        otp: currentOtp
+        success: true,
+        message: "OTP Sent Successfully",
+        otp: currentOtp,
       });
-
     }, 500);
   });
 };
 
 // Verify OTP
-export const verifyOTP = async (otp) => {
+export const verifyOTP = async (data) => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
+      const otp = typeof data === "string" ? data : data?.otp;
+
+      if (!otp) {
+        return reject(new Error("OTP is required"));
+      }
 
       if (otp === currentOtp) {
-        resolve({ message: "OTP Verified Successfully" });
+        resolve({
+          success: true,
+          message: "OTP Verified Successfully",
+        });
       } else {
         reject(new Error("Invalid OTP"));
       }
-
     }, 500);
   });
 };
 
-// Save KYC to API
+/* =====================================================
+   🪪 KYC SUBMISSION (UI + AI MOCK)
+===================================================== */
+
+export const submitKYC = async (formData) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (!formData) {
+        return reject(new Error("Invalid KYC data"));
+      }
+
+      const statuses = ["Pending", "Approved", "Rejected", "Manual review"];
+      const randomStatus =
+        statuses[Math.floor(Math.random() * statuses.length)];
+
+      console.log("KYC Status:", randomStatus);
+
+      resolve({
+        success: true,
+        status: randomStatus,
+        message: "KYC submitted successfully",
+      });
+    }, 2000);
+  });
+};
+
+/* =====================================================
+   💾 SAVE KYC (Backend API)
+===================================================== */
+
 export const saveKYC = async (data) => {
   try {
-
-    const response = await postRequest("/kyc", {
-      userId: data.userId || 1,
-      govId: data.govId,
-      status: "Pending"
-    });
-
-    return {
-      success: true,
-      message: "KYC Submitted",
-      data: response
-    };
-
+    const response = await postRequest("/kyc/submit", data);
+    return response;
   } catch (error) {
-    throw new Error(error.message || "KYC submission failed");
+    console.error("KYC ERROR:", error);
+
+    // ✅ IMPORTANT FIX
+    throw new Error(
+      error.message || "KYC submission failed"
+    );
   }
 };
 
-// Get KYC Status
+/* =====================================================
+   📊 GET KYC STATUS
+===================================================== */
+
 export const getKYCStatus = async (userId) => {
+  try {
+    const response = await getRequest("/kyc/status", { userId });
 
-  const response = await getRequest("/kyc", { userId });
+    return {
+      success: true,
+      status: response.status || "Pending",
+    };
+  } catch (error) {
+    console.error("Fetch KYC Status Error:", error);
 
-  if (response.length === 0) {
-    return { status: "Not Submitted" };
+    throw new Error("Failed to fetch KYC status");
   }
+};
 
-  return { status: response[0].status };
+/* =====================================================
+   🤖 MOCK KYC RESULT (FOR UI)
+===================================================== */
+
+export const getKYCResult = async () => {
+  return {
+    status: "verified",
+    faceMatchScore: 87,
+    liveness: true,
+    ocrData: {
+      name: "Vimalashwari",
+      idNumber: "ABC1234567",
+    },
+    error: null,
+  };
 };

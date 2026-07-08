@@ -1,32 +1,19 @@
 import { getRequest } from "./api";
 
-// ================= WALLET LOOKUP =================
-export const lookupWallet = async (searchValue) => {
+// ================= GET LOGGED-IN USER WALLET =================
+export const getWallet = async () => {
   try {
-    if (!searchValue) {
-      throw new Error("Email or phone is required");
-    }
-
-    // 🔥 Fetch all wallets from API
-    const wallets = await getRequest("/wallets");
-
-    // 🔍 Find matching wallet (email OR phone)
-    const wallet = wallets.find(
-      (w) =>
-        w.email?.toLowerCase() === searchValue.toLowerCase() ||
-        w.phone === searchValue
-    );
+    // ✅ Fetch wallet from backend
+    const wallet = await getRequest("/wallet");
 
     if (!wallet) {
       throw new Error("Wallet not found");
     }
 
-    return {
-      success: true,
-      data: wallet,
-    };
+    // ✅ Return backend data directly
+    return wallet;
 
   } catch (error) {
-    throw new Error(error.message || "Wallet lookup failed");
+    throw new Error(error.message || "Failed to fetch wallet");
   }
 };
