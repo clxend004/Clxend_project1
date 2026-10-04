@@ -1,0 +1,44 @@
+@media (max-width: 768px) {
+  .vectro-sidebar {
+    display: none !important;
+  }
+
+  .vectro-mobile-nav {
+    display: flex !important;
+  }
+
+  .vectro-main-content {
+    padding-bottom: 80px !important;
+  }
+
+  .vectro-navbar-user-info {
+    display: none !important;
+  }
+
+  .vectro-navbar {
+    padding: 0 14px !important;
+  }
+
+  /* iOS Safari auto-zooms the whole page when a text input with
+     font-size under 16px receives focus. Every input across the
+     app is styled at 12-14px for visual consistency with the
+     surrounding text, which triggers this on every screen with
+     a form (Login, Register, Send, KYC, Security, etc.). Forcing
+     16px here only on mobile viewports fixes the zoom without
+     changing how inputs look on desktop. */
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .vectro-brand-subtitle {
+    display: none !important;
+  }
+
+  .vectro-navbar-logout {
+    display: none !important;
+  }
+}

@@ -33,3 +33,32 @@ node_modules/
 
 # Environment
 .env
+# Local Python environments
+backend/venv/ai-env/
+AI_IDENTITY/venv/
+BLOCKCHAIN/node_modules/
+
+# Local uploaded files
+uploads/
+
+# Local database files
+db.json
+
+# Logs
+*.log
+
+# Virtual environments
+/ai-env/
+/backend/venv/
+/AI_IDENTITY/venv/
+/BLOCKCHAIN/node_modules/
+
+# Nested wallet project local files
+/wallet/node_modules/
+/wallet/ai-env/
+/wallet/uploads/
+/wallet/.env*
+
+# Hardhat generated cache
+/BLOCKCHAIN/cache/
+/wallet/BLOCKCHAIN/cache/

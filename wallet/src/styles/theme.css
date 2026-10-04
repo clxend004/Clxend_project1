@@ -1,0 +1,53 @@
+:root {
+  /* =========================
+     VECTRO COLORS
+  ========================= */
+
+  --vectro-bg: #050816;
+  --vectro-bg-secondary: #0b1120;
+
+  --vectro-card: #111827;
+  --vectro-card-secondary: #182338;
+
+  --vectro-primary: #2563eb;
+  --vectro-primary-light: #8b5cf6;
+
+  --vectro-text: #ffffff;
+  --vectro-text-secondary: #cbd5e1;
+  --vectro-text-muted: #94a3b8;
+
+  --vectro-border: rgba(148, 163, 184, 0.16);
+
+  --vectro-success: #34d399;
+  --vectro-warning: #f59e0b;
+  --vectro-danger: #f87171;
+
+  /* =========================
+     RADIUS
+  ========================= */
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 22px;
+
+  /* =========================
+     SHADOW
+  ========================= */
+
+  --shadow-card:
+    0 25px 70px rgba(0, 0, 0, 0.45);
+
+  --shadow-button:
+    0 10px 25px rgba(59, 130, 246, 0.25);
+
+  /* =========================
+     SPACING
+  ========================= */
+
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+}

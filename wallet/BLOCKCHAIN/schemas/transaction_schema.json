@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Blockchain Transaction Schema",
+  "description": "Standard transaction representation for the DID and escrow system.",
+  "type": "object",
+  "required": [
+    "tx_id",
+    "sender",
+    "recipient",
+    "amount",
+    "chain",
+    "status",
+    "timestamp"
+  ],
+  "properties": {
+    "tx_id": {
+      "type": "string",
+      "description": "Unique application transaction identifier",
+      "minLength": 1
+    },
+    "sender": {
+      "type": "string",
+      "description": "Ethereum wallet address initiating the transaction",
+      "pattern": "^0x[a-fA-F0-9]{40}$"
+    },
+    "recipient": {
+      "type": "string",
+      "description": "Ethereum wallet or contract address receiving the transaction",
+      "pattern": "^0x[a-fA-F0-9]{40}$"
+    },
+    "amount": {
+      "type": "string",
+      "description": "Transaction amount represented as a decimal string"
+    },
+    "chain": {
+      "type": "string",
+      "enum": [
+        "sepolia",
+        "mainnet",
+        "hardhat",
+        "localhost"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "created",
+        "pending",
+        "confirmed",
+        "failed"
+      ]
+    },
+    "transaction_hash": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Blockchain transaction hash after submission"
+    },
+    "block_number": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "Block number after transaction confirmation"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}

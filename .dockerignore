@@ -1,0 +1,27 @@
+node_modules
+build
+.git
+ai-env
+backend\venv
+__pycache__
+*.pyc
+.env
+.env.*
+uploads
+docs
+wallet
+
+# Backend / Python
+backend\__pycache__
+AI_IDENTITY\__pycache__
+BLOCKCHAIN\__pycache__
+AI_IDENTITY\venv
+BLOCKCHAIN\node_modules
+
+# Logs
+*.log
+
+# GitHub / editor
+.github
+.vscode
+.idea

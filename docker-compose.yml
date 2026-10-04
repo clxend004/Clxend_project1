@@ -1,0 +1,111 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: wallet-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: wallet_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  blockchain:
+    build:
+      context: ./BLOCKCHAIN
+      dockerfile: Dockerfile
+    image: wallet-blockchain:latest
+    container_name: wallet-blockchain
+    env_file:
+      - ./BLOCKCHAIN/.env
+    ports:
+      - "3001:3001"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: wallet-backend:latest
+    container_name: wallet-backend
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      BLOCKCHAIN_API_URL: http://blockchain:3001
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - blockchain
+
+  ai_identity:
+    build:
+      context: ./AI_IDENTITY
+      dockerfile: Dockerfile
+    image: wallet-ai-identity:latest
+    container_name: wallet-ai-identity
+    ports:
+      - "8001:8000"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        REACT_APP_API_TYPE: ${REACT_APP_API_TYPE}
+        REACT_APP_REAL_API: ${REACT_APP_REAL_API}
+        REACT_APP_MOCK_API: ${REACT_APP_MOCK_API}
+
+        REACT_APP_FIREBASE_API_KEY: ${REACT_APP_FIREBASE_API_KEY}
+        REACT_APP_FIREBASE_AUTH_DOMAIN: ${REACT_APP_FIREBASE_AUTH_DOMAIN}
+        REACT_APP_FIREBASE_PROJECT_ID: ${REACT_APP_FIREBASE_PROJECT_ID}
+        REACT_APP_FIREBASE_STORAGE_BUCKET: ${REACT_APP_FIREBASE_STORAGE_BUCKET}
+        REACT_APP_FIREBASE_MESSAGING_SENDER_ID: ${REACT_APP_FIREBASE_MESSAGING_SENDER_ID}
+        REACT_APP_FIREBASE_APP_ID: ${REACT_APP_FIREBASE_APP_ID}
+        REACT_APP_FIREBASE_MEASUREMENT_ID: ${REACT_APP_FIREBASE_MEASUREMENT_ID}
+
+    image: wallet-frontend:latest
+    container_name: wallet-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+      - blockchain
+      - ai_identity
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: wallet-prometheus
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    depends_on:
+      - backend
+      - ai_identity
+      - blockchain
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: wallet-grafana
+    ports:
+      - "3002:3000"
+    depends_on:
+      - prometheus
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: wallet-cadvisor
+    ports:
+      - "8081:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+
+volumes:
+  postgres_data:
+    external: true
+    name: clxend_project_postgres_data

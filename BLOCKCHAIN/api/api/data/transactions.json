@@ -1,0 +1,44 @@
+[
+  {
+    "tx_id": "tx_b39d8589-db58-4aec-9e71-5fec27b8da7c",
+    "sender": "0xA3e2F389aD996148626C8BbA4B8B04368103cCaA",
+    "recipient": "0x78ca8CD44C90669baB6A2E365511576d9D7519fa",
+    "amount": "0.0001",
+    "chain": "sepolia",
+    "type": "escrow",
+    "idempotency_key": null,
+    "did_id": "did:clxend:test004",
+    "status": "funded",
+    "transaction_hash": "0xa3e850660daac514d8aab9a3509bd2f3591b3e3447ef0a6507f1eda4c7cbe622",
+    "block_number": 11706218,
+    "timestamp": "2026-09-14T23:51:59.411Z"
+  },
+  {
+    "tx_id": "tx_199bb670-63ae-4fab-af45-e2f86b7dd665",
+    "sender": "0x25dd2E3F0e0424e511A18692031B867533cc1604",
+    "recipient": "0x78ca8CD44C90669baB6A2E365511576d9D7519fa",
+    "amount": "0.0001",
+    "chain": "sepolia",
+    "type": "escrow",
+    "idempotency_key": null,
+    "did_id": "did:wallet:4",
+    "status": "released",
+    "transaction_hash": null,
+    "block_number": null,
+    "timestamp": "2026-10-03T16:31:05.301Z"
+  },
+  {
+    "tx_id": "tx_0bf8d4e6-6fe7-4840-9096-59a494993267",
+    "sender": "0x25dd2E3F0e0424e511A18692031B867533cc1604",
+    "recipient": "0x78ca8CD44C90669baB6A2E365511576d9D7519fa",
+    "amount": "0.001",
+    "chain": "sepolia",
+    "type": "escrow",
+    "idempotency_key": null,
+    "did_id": "did:wallet:4",
+    "status": "released",
+    "transaction_hash": null,
+    "block_number": null,
+    "timestamp": "2026-10-03T16:36:39.360Z"
+  }
+]

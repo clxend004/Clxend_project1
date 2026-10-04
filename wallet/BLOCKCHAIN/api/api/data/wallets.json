@@ -1,0 +1,159 @@
+[
+  {
+    "mapping_id": "wallet_52c25014-590b-435d-a5e3-2c349a49061f",
+    "did": "did:example:durai123",
+    "wallet_address": "0x1234567890123456789012345678901234567890",
+    "chain": "sepolia",
+    "status": "connected",
+    "timestamp": "2026-08-27T15:16:01.959Z"
+  },
+  {
+    "did": "did:example:durai456",
+    "wallet_address": "0x3a69e918da8590a70967bf2d36202a31201c642a",
+    "chain": "sepolia",
+    "status": "connected",
+    "connected_at": "2026-08-28T06:44:42.132Z"
+  },
+  {
+    "did": "did:example:arbiter456",
+    "wallet_address": "0xf805fb0543188aa87829adb88a9b6f047dcaa3b7",
+    "chain": "sepolia",
+    "status": "connected",
+    "connected_at": "2026-08-29T10:54:18.652Z"
+  },
+  {
+    "did": "did:004",
+    "wallet_address": "0x01a119788f69a727529d3d4b2c9e0a71b5e822ef",
+    "chain": "sepolia",
+    "status": "connected",
+    "connected_at": "2026-09-03T04:37:43.446Z"
+  },
+  {
+    "did": "did:clxend:test001",
+    "wallet_address": "0x7CFe4fa0342596f7472c1210781cEc8BB1b76C50",
+    "chain": "sepolia",
+    "status": "created",
+    "created_at": "2026-09-11T06:57:41.880Z",
+    "private_key": "0x30baefe2fe05b269790bcedeb9140d0b99293443a87f2bd76fff6fff7399ca0d"
+  },
+  {
+    "did": "did:clxend:test002",
+    "wallet_address": "0x6AA58aE6fA1DA89AE0cCA3547A795D041B99cf7F",
+    "chain": "sepolia",
+    "status": "created",
+    "created_at": "2026-09-11T07:13:04.969Z",
+    "encrypted_private_key": {
+      "iv": "8932a447e5db83f8450998eb",
+      "auth_tag": "46e3bacc10ff97ffb5c03b97308f50ff",
+      "encrypted_data": "ab720a1ef211f8d94b61762c47994f785e10286f79e0a7f373369dee049ca4001ddf908b470ef1014b984448efbceafa8cae1195ab38281b3a082938d75b7b79cb57"
+    }
+  },
+  {
+    "did": "did:clxend:test003",
+    "wallet_address": "0x3A158066D4456b3A57246f2bA8A00EaCF35C7BC0",
+    "chain": "sepolia",
+    "status": "created",
+    "created_at": "2026-09-11T08:07:20.914Z",
+    "encrypted_private_key": {
+      "iv": "8fe34fa95db8e05834a8e3f0",
+      "auth_tag": "0429d6a16f8629b0df22b37b29eb713a",
+      "encrypted_data": "e963a12fa77f0327ec59e18b158c8ca5a15b6e3c6746a18879d44dbd63760b29dfa881f0996b0d67949fa6f6ad3c6261446a3728a9ec2ce7d58a09f1fcaae9a98046"
+    }
+  },
+  {
+    "did": "did:clxend:test004",
+    "wallet_address": "0xA3e2F389aD996148626C8BbA4B8B04368103cCaA",
+    "chain": "sepolia",
+    "status": "created",
+    "created_at": "2026-09-11T15:32:14.463Z",
+    "encrypted_private_key": {
+      "iv": "f87f0fa2c4873e36b3bd71da",
+      "auth_tag": "83d5acc02b00b7c7e62eb462735d469e",
+      "encrypted_data": "5bb46c638a03c2307497ae7b079169bc76567122a849b96e7cfbe51bb2b5d64010ec2101eaf6e64766e3498dcc60118fde91bb8ffeea15a89753293e61503a706fdd"
+    }
+  },
+  {
+    "did": "did:clxend:test005",
+    "wallet_address": "0x78ca8CD44C90669baB6A2E365511576d9D7519fa",
+    "chain": "sepolia",
+    "status": "created",
+    "created_at": "2026-09-11T15:54:13.427Z",
+    "encrypted_private_key": {
+      "iv": "97ed17956c1eb2bcce26bfa6",
+      "auth_tag": "210c8909a864f124eb3abcb069eb7a23",
+      "encrypted_data": "7175842be657da6d5b6cb7a2ba433bfa522dee291fa4b9bdfc26546212bd15ed028e0e4b039f99778138ff2d61e73655d44581562fbecc488da17c96ea643a483f20"
+    }
+  },
+  {
+    "did": "did:clxend:demo001",
+    "wallet_address": "0xF4D88f82b09B9E77185ab11B9a46B9BfE5e272aD",
+    "chain": "sepolia",
+    "status": "created",
+    "created_at": "2026-09-28T10:31:31.344Z",
+    "encrypted_private_key": {
+      "iv": "5f7ca8646a6dfa9a8da198aa",
+      "auth_tag": "adcbb0496ebccc604c1f4b3465b1fe2a",
+      "encrypted_data": "4e84b30fcf5a6becb08d634b63ac3da64938b2c44ce5e777f541d753e5e1b1e03af4398a058081d24e03f99f36c9874a3bfc76cb006c4af609593b23a17e1b6c4973"
+    }
+  },
+  {
+    "did": "did:clxend:2",
+    "wallet_address": "0x4B5d9D37a9aA3e6f6AED7E0BF0dc5137fde1C6f6",
+    "chain": "sepolia",
+    "status": "created",
+    "created_at": "2026-09-28T10:39:11.572Z",
+    "encrypted_private_key": {
+      "iv": "900af9c52a5c741870d6861f",
+      "auth_tag": "234d70199e6eb1ab658f741726a19519",
+      "encrypted_data": "8951d9b64a741d22d11393e84c3331254d86c02c9a9683aede3fa4344fc72d4c0f66db8579b4fb4ccb6c8d5389693a6ad3f31d7a6b2e30bd6146463d9398ce2007b1"
+    }
+  },
+  {
+    "did": "did:wallet:integration-test-001",
+    "wallet_address": "0xfd08f90104D6aaFE9597f6d7Af522F907C83D03c",
+    "chain": "sepolia",
+    "status": "created",
+    "created_at": "2026-09-29T14:38:30.323Z",
+    "encrypted_private_key": {
+      "iv": "c48360a16bc42f378654fc70",
+      "auth_tag": "4542b3d8277862f403d211b7b1b99bdd",
+      "encrypted_data": "586c1872c14eaf9d207c996fe53510b10d5700c07a2c9041816403c963f32b296165e902ffe339e27da21c514bf431f6ca0db8f9f148f0f29ba2ba534699f153a3b7"
+    }
+  },
+  {
+    "did": "did:wallet:5",
+    "wallet_address": "0xf1EAFe4098b412009f858dea433f76Eb914CD65e",
+    "chain": "sepolia",
+    "status": "created",
+    "created_at": "2026-09-29T15:12:50.314Z",
+    "encrypted_private_key": {
+      "iv": "fe04e910ada0305eeff420b2",
+      "auth_tag": "9ca74169fb47bd9a0b77e7e996a79084",
+      "encrypted_data": "13f9b8bb3beb1599e4cb177817417eb18dbbcb98bee78c43670664c39c77181aff3548cf00403d0a69e65b48be5d5b48744987c614739acb73f359016a2dd769a66b"
+    }
+  },
+  {
+    "did": "did:wallet:6",
+    "wallet_address": "0x03f3B194EA23FC1ec057c2c8C0DBe757CBcC93c8",
+    "chain": "sepolia",
+    "status": "created",
+    "created_at": "2026-09-30T08:20:25.262Z",
+    "encrypted_private_key": {
+      "iv": "f157908b6680e06f85742320",
+      "auth_tag": "98a7845ce6c7ac88787b6615641e2ca6",
+      "encrypted_data": "a3f2ad58cdefe1b699d7b0c814a56898c3fbe6f6ed69b4d009d1b8936d764a1816fe5d9878bdc4265dbf8d4752b48f87095fc9fef1aee95b1a6a030fa60874c4ad1f"
+    }
+  },
+  {
+    "did": "did:wallet:7",
+    "wallet_address": "0xA338F6438142Da71BaEc96BDeA5343ea58D370E4",
+    "chain": "sepolia",
+    "status": "created",
+    "created_at": "2026-09-30T11:16:19.606Z",
+    "encrypted_private_key": {
+      "iv": "29506979ed13bd0df0ab9d0f",
+      "auth_tag": "3b451513b4c845885d66f231e5345e60",
+      "encrypted_data": "dc283c8323a2e485e872c5f83573cae6c99e943e0ce0fe84cd25bfbd202a962b77509282aab0b6762dcdac5fbae8c91f2154d3d765dc438eb5d80522fd0abf065f45"
+    }
+  }
+]

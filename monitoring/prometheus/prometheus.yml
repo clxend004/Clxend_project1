@@ -1,0 +1,27 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["prometheus:9090"]
+
+  - job_name: "wallet-backend"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["backend:8000"]
+
+  - job_name: "wallet-ai-identity"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["ai_identity:8000"]
+
+  - job_name: "wallet-blockchain"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["blockchain:3001"]
+
+  - job_name: "cadvisor"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["cadvisor:8080"]
