@@ -15,7 +15,7 @@ describe("RegisterScreen", () => {
     renderRegister();
 
     expect(
-      screen.getByText(/create your vectro account/i)
+      screen.getByText(/create your clxend account/i)
     ).toBeInTheDocument();
     expect(
       screen.getByPlaceholderText(/enter your email/i)
