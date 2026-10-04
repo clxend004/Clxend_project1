@@ -84,6 +84,7 @@ jobs:
 
     env:
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
+      
 
     steps:
       - name: Checkout code
@@ -104,6 +105,7 @@ jobs:
         working-directory: BLOCKCHAIN
         run: |
           echo "SEPOLIA_RPC_URL=${{ secrets.SEPOLIA_RPC_URL }}" >> .env
+          echo "CONTRACT_ADDRESS=${{ secrets.CONTRACT_ADDRESS }}">> .env
 
       - name: Run Hardhat tests
         working-directory: BLOCKCHAIN
