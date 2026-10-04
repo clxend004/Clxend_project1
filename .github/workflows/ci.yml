@@ -82,6 +82,9 @@ jobs:
     name: Blockchain Tests
     runs-on: ubuntu-latest
 
+    env:
+      SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -96,6 +99,11 @@ jobs:
       - name: Install blockchain dependencies
         working-directory: BLOCKCHAIN
         run: npm ci
+
+      - name: Create blockchain environment file
+        working-directory: BLOCKCHAIN
+        run: |
+          echo "SEPOLIA_RPC_URL=${{ secrets.SEPOLIA_RPC_URL }}" >> .env
 
       - name: Run Hardhat tests
         working-directory: BLOCKCHAIN
