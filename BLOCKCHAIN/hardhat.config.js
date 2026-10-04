@@ -20,12 +20,16 @@ module.exports = {
   networks: {
     hardhat: {},
 
-    sepolia: {
-      url: process.env.SEPOLIA_RPC_URL,
-      accounts: process.env.DID_ADMIN_PRIVATE_KEY
-           ?[process.env.DID_ADMIN_PRIVATE_KEY]
-           :[],
-    },
+    ...(process.env.SEPOLIA_RPC_URL
+      ? {
+          sepolia: {
+            url: process.env.SEPOLIA_RPC_URL,
+            accounts: process.env.DID_ADMIN_PRIVATE_KEY
+              ? [process.env.DID_ADMIN_PRIVATE_KEY]
+              : [],
+          },
+        }
+      : {}),
   },
 
   etherscan: {
