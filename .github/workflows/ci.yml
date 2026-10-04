@@ -1,0 +1,161 @@
+name: Clxend CI
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+
+  # =========================
+  # FRONTEND
+  # =========================
+  frontend:
+    name: Frontend Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Run frontend tests
+        run: npm test -- --watchAll=false --passWithNoTests
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Upload frontend build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: build/
+
+
+  # =========================
+  # BACKEND
+  # =========================
+  backend:
+    name: Backend Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install backend dependencies
+        run: pip install -r backend/requirements.txt
+
+      - name: Validate Python syntax
+        run: python -m compileall -q backend
+
+
+  # =========================
+  # BLOCKCHAIN
+  # =========================
+  blockchain:
+    name: Blockchain Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: BLOCKCHAIN/package-lock.json
+
+      - name: Install blockchain dependencies
+        working-directory: BLOCKCHAIN
+        run: npm ci
+
+      - name: Run Hardhat tests
+        working-directory: BLOCKCHAIN
+        run: npx hardhat test
+
+
+  # =========================
+  # AI IDENTITY
+  # =========================
+  ai-identity:
+    name: AI Identity Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install AI Identity dependencies
+        working-directory: AI_IDENTITY
+        run: |
+          pip install -r requirements.txt
+
+      - name: Validate AI Identity Python code
+        run: |
+          python -m compileall -q AI_IDENTITY
+
+
+  # =========================
+  # DOCKER
+  # =========================
+  docker:
+    name: Docker Image Builds
+    runs-on: ubuntu-latest
+
+    needs:
+      - frontend
+      - backend
+      - blockchain
+      - ai-identity
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build frontend Docker image
+        run: |
+          docker build \
+            -t clxend-frontend:ci \
+            .
+
+      - name: Build backend Docker image
+        run: |
+          docker build \
+            -t clxend-backend:ci \
+            ./backend
+
+      - name: Build blockchain Docker image
+        run: |
+          docker build \
+            -t clxend-blockchain:ci \
+            ./BLOCKCHAIN
+
+      - name: Build AI Identity Docker image
+        run: |
+          docker build \
+            -t clxend-ai-identity:ci \
+            ./AI_IDENTITY
